@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+# hshell — launch a hardened Docker sandbox for agentic work in $PWD.
+# See .claude/skills/hardened-shell/SKILL.md for the design.
+set -euo pipefail
+
+# Resolve the skill directory via the symlink in /usr/local/bin.
+SELF="$(readlink -f "$0")"
+SKILL_DIR="$(cd -- "$(dirname "$SELF")/.." && pwd)"
+TEMPLATE_DIR="${SKILL_DIR}/home-template"
+
+IMAGE="${HSHELL_IMAGE:-hshell:latest}"
+WORK="$PWD"
+
+# --- preflight --------------------------------------------------------------
+
+if [[ "$WORK" == "$HOME" || "$WORK" == "/" ]]; then
+    echo "hshell: refusing to run in \$HOME or /; cd into a project folder first" >&2
+    exit 1
+fi
+
+if ! command -v docker &>/dev/null; then
+    echo "hshell: docker not installed" >&2
+    exit 1
+fi
+
+if ! docker image inspect "$IMAGE" &>/dev/null; then
+    echo "hshell: image '$IMAGE' not found" >&2
+    echo "       run: $SKILL_DIR/scripts/build-image.sh" >&2
+    exit 1
+fi
+
+if [[ ! -d "$TEMPLATE_DIR" ]]; then
+    echo "hshell: home-template not found at $TEMPLATE_DIR" >&2
+    exit 1
+fi
+
+# --- per-project state ------------------------------------------------------
+
+INTERNAL="$WORK/.internal"
+CLAUDE_STATE="$INTERNAL/claude"
+
+if [[ ! -d "$CLAUDE_STATE" ]]; then
+    mkdir -p "$CLAUDE_STATE"
+    cp -rT "$TEMPLATE_DIR" "$CLAUDE_STATE"
+fi
+
+# Ensure .internal is gitignored if this is a git repo.
+if [[ -d "$WORK/.git" ]]; then
+    GITIGNORE="$WORK/.gitignore"
+    if ! grep -qxF ".internal/" "$GITIGNORE" 2>/dev/null; then
+        echo ".internal/" >> "$GITIGNORE"
+    fi
+fi
+
+# --- blocklist --------------------------------------------------------------
+# Sensitive host paths get shadowed by empty tmpfs / /dev/null mounts
+# layered on top of the /host read-only bind.
+
+BLOCK_DIRS=(
+    "$HOME/.ssh"
+    "$HOME/.aws"
+    "$HOME/.gnupg"
+    "$HOME/.kube"
+    "$HOME/.docker"
+    "$HOME/.config/gh"
+    "$HOME/.config/doppler"
+    "$HOME/.config/op"
+    "$HOME/.password-store"
+    "$HOME/.mozilla"
+    "$HOME/.config/google-chrome"
+    "$HOME/.config/chromium"
+    "$HOME/.config/BraveSoftware"
+    "$HOME/.local/share/keyrings"
+    "/root"
+)
+
+BLOCK_FILES=(
+    "$HOME/.netrc"
+    "$HOME/.pgpass"
+    "$HOME/.bash_history"
+    "$HOME/.zsh_history"
+    "/etc/shadow"
+)
+
+BLOCK_ARGS=()
+for d in "${BLOCK_DIRS[@]}"; do
+    # Only block dirs that exist on the host; Docker can't create a mountpoint
+    # inside the RO /host bind, so non-existent paths have nothing to block.
+    [[ -d "$d" ]] && BLOCK_ARGS+=(--tmpfs "/host${d}:ro,noexec,nosuid,size=0")
+done
+for f in "${BLOCK_FILES[@]}"; do
+    # Only mask files that actually exist; docker errors on missing sources.
+    [[ -e "$f" ]] && BLOCK_ARGS+=(-v "/dev/null:/host${f}:ro")
+done
+
+# --- command selection ------------------------------------------------------
+# `hshell`              → interactive bash
+# `hshell claude ...`   → claude --dangerously-skip-permissions <args>
+# `hshell <anything>`   → <anything> <args>
+
+if (( $# == 0 )); then
+    CMD=(bash)
+    TTY_ARGS=(-it)
+elif [[ "$1" == "claude" ]]; then
+    shift
+    CMD=(claude --dangerously-skip-permissions "$@")
+    TTY_ARGS=(-it)
+else
+    CMD=("$@")
+    # Preserve tty only if we actually have one attached.
+    if [[ -t 0 && -t 1 ]]; then
+        TTY_ARGS=(-it)
+    else
+        TTY_ARGS=(-i)
+    fi
+fi
+
+# --- run --------------------------------------------------------------------
+
+exec docker run \
+    --rm "${TTY_ARGS[@]}" \
+    --cap-drop=ALL \
+    --security-opt=no-new-privileges \
+    --pids-limit=512 \
+    --memory=8g \
+    --user "$(id -u):$(id -g)" \
+    --network=bridge \
+    --hostname hshell \
+    -e HSHELL=1 \
+    -e HOST_HOME="/host${HOME}" \
+    -e HOME=/home/agent \
+    -e USER=agent \
+    -v "/:/host:ro" \
+    -v "${WORK}:/work" \
+    -v "${CLAUDE_STATE}:/home/agent/.claude" \
+    "${BLOCK_ARGS[@]}" \
+    -w /work \
+    "$IMAGE" \
+    "${CMD[@]}"
