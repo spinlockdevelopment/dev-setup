@@ -35,7 +35,7 @@ RUN curl -fsSL https://cli.doppler.com/install.sh | sh -s -- --verify-signature
 
 # mise — installed under /opt/mise so shims are on PATH for every user.
 # Pinned LTS versions. Bump in place when a new LTS lands.
-# pinned 2026-04-14 — replace with the versions you recorded in Step 1.
+# pinned 2026-04-14.
 ENV NODE_LTS_VERSION=24.14.1 \
     PYTHON_VERSION=3.14.4
 
