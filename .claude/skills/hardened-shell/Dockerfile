@@ -7,12 +7,12 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
     MISE_DATA_DIR=/opt/mise \
-    PATH=/opt/mise/shims:/usr/local/bin:/usr/bin:/bin
+    PATH=/opt/mise/shims:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # OS packages: shell + dev CLIs + network + build deps.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      ca-certificates curl wget gnupg \
+      ca-certificates curl wget gnupg gpgv \
       git ripgrep fd-find bat jq tree less \
       bash-completion procps file \
       build-essential \
