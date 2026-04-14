@@ -36,14 +36,23 @@ mode and self-heals on upstream version drift (via
 
 Targets: Ubuntu 24.04+ desktop. Latest LTS / public-GA only.
 
-## Work in progress
+### hardened-shell
 
-### hardened-shell (design phase)
+Path: `.claude/skills/hardened-shell/`
+Entry points:
+- `scripts/build-image.sh` — build `hshell:latest`
+- `scripts/install.sh` — symlink `hshell` into `~/.local/bin`
+- `scripts/verify.sh` — health check
 
-Path: `hardened-shell-notes.md` (root of repo, not yet a skill)
+Ships `hshell`, a launcher that drops into a hardened Docker sandbox so
+Claude (and other agents) can run with `--dangerously-skip-permissions`
+without risking the host. Host is bind-mounted read-only at `/host` with
+a credential blocklist masking `.ssh`/`.aws`/`.gnupg`/`.netrc`/browser
+profiles/etc. `$PWD` is the agent's only writable world at `/work`.
+Per-project Claude state persists in `$PWD/.internal/claude/`. Subagents
+share `/work` and coordinate via git worktrees under `/work/.worktree/`.
 
-Planned `hshell` command that drops the user into a locked-down Docker
-container where Claude Code can run safely: host filesystem whitelisted
-read-only, `$PWD` read/write, Claude state COW-mapped into `$PWD/.internal/`.
-User plans to revise the design before implementation. Pick up from the
-notes file in a fresh session.
+Image is Debian slim with mise-pinned Node + Python LTS, `claude-code`,
+and common dev CLIs. Pins self-heal on LTS rollover (see SKILL.md).
+
+Targets: any host with Docker CE. Latest LTS / public-GA only.

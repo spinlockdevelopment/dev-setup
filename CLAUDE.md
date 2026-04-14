@@ -42,10 +42,3 @@ what's available.
 3. Add an entry to `claude-skills.md` with a one-line summary + entry point.
 4. If the skill is shell-script-heavy, include a `scripts/lib.sh` for shared
    logging and idempotency helpers (follow the pattern in `ubuntu-debloat`).
-
-## Work in progress
-
-- `hardened-shell-notes.md` — design notes for a future `hardened-shell`
-  skill (`hshell` command: locked-down Docker container for running Claude
-  Code safely). Not yet implemented; the user plans to revise the design
-  before we build it.
