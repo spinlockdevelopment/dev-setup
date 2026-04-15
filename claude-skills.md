@@ -39,6 +39,7 @@ Targets: Ubuntu 24.04+ desktop. Latest LTS / public-GA only.
 ### hardened-shell
 
 Path: `.claude/skills/hardened-shell/`
+User guide: [`USAGE.md`](./.claude/skills/hardened-shell/USAGE.md)
 Entry points:
 - `scripts/build-image.sh` — build `hshell:latest`
 - `scripts/install.sh` — symlink `hshell` into `~/.local/bin`

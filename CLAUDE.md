@@ -20,7 +20,8 @@ what's available.
 
 - **Thin SKILL.md.** Treat it as a decision tree for Claude, not an
   instruction manual. The body tells Claude *when* to do what; the scripts
-  know *how*.
+  know *how*. For human-facing "how do I use this" docs, add a sibling
+  `USAGE.md` next to `SKILL.md` (see `hardened-shell/` for an example).
 - **Tight frontmatter descriptions.** Descriptions are always in context, so
   keep them short while still specific enough to trigger reliably.
 - **Heavy lifting in `scripts/`.** Each skill ships idempotent bash scripts
@@ -42,3 +43,6 @@ what's available.
 3. Add an entry to `claude-skills.md` with a one-line summary + entry point.
 4. If the skill is shell-script-heavy, include a `scripts/lib.sh` for shared
    logging and idempotency helpers (follow the pattern in `ubuntu-debloat`).
+5. If the skill is user-facing (has a CLI or runtime the user drives
+   directly), add a `USAGE.md` sibling to `SKILL.md` with install steps,
+   examples, and troubleshooting.
