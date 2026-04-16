@@ -16,12 +16,25 @@ The authoritative list of skills lives in [`claude-skills.md`](./claude-skills.m
 Read that before adding a skill, editing an existing one, or telling the user
 what's available.
 
+For a human-facing overview (what's in this repo, per-skill install
+intent, symlink instructions) see [`README.md`](./README.md).
+
 ## Conventions for skills in this repo
 
 - **Thin SKILL.md.** Treat it as a decision tree for Claude, not an
   instruction manual. The body tells Claude *when* to do what; the scripts
-  know *how*. For human-facing "how do I use this" docs, add a sibling
-  `USAGE.md` next to `SKILL.md` (see `hardened-shell/` for an example).
+  know *how*.
+- **`README.md` per skill (required).** Every skill has a sibling `README.md`
+  that gives a plain-English overview: what it is, why it exists, what it
+  does, and an **Installation intent** section (user-level, project-level,
+  or both, with the exact symlink command). This is the human-facing
+  landing page.
+- **`USAGE.md` per skill (optional).** If the skill ships a CLI or runtime
+  that users drive directly (not just Claude), add a `USAGE.md` alongside
+  `README.md` for the deep how-to — install flow, every command, every
+  flag, troubleshooting, customization. See `hardened-shell/` for the
+  pattern. Skills without a user-facing CLI don't need `USAGE.md`; the
+  `README.md` is enough.
 - **Tight frontmatter descriptions.** Descriptions are always in context, so
   keep them short while still specific enough to trigger reliably.
 - **Heavy lifting in `scripts/`.** Each skill ships idempotent bash scripts
@@ -39,13 +52,19 @@ what's available.
 
 1. Create `.claude/skills/<name>/SKILL.md` with YAML frontmatter (`name`,
    `description`) and a thin body.
-2. Put scripts in `.claude/skills/<name>/scripts/`.
-3. Add an entry to `claude-skills.md` with a one-line summary + entry point.
+2. Create `.claude/skills/<name>/README.md` — plain-English overview with
+   a clear **Installation intent** section (user-level, project-level, or
+   both, with the exact symlink command).
+3. Put scripts in `.claude/skills/<name>/scripts/`.
 4. If the skill is shell-script-heavy, include a `scripts/lib.sh` for shared
    logging and idempotency helpers (follow the pattern in `ubuntu-debloat`).
-5. If the skill is user-facing (has a CLI or runtime the user drives
-   directly), add a `USAGE.md` sibling to `SKILL.md` with install steps,
-   examples, and troubleshooting.
+5. If the skill ships a CLI or runtime the user drives directly, add a
+   `USAGE.md` sibling to `SKILL.md` with install steps, examples, and
+   troubleshooting. See `hardened-shell/` for the pattern.
+6. Add an entry to `claude-skills.md` with a one-line summary, entry
+   point, and installation intent.
+7. Add the skill to the **Skills at a glance** table in the root
+   `README.md`.
 
 ## Project Mode
 
