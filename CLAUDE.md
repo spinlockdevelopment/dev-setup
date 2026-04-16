@@ -46,3 +46,13 @@ what's available.
 5. If the skill is user-facing (has a CLI or runtime the user drives
    directly), add a `USAGE.md` sibling to `SKILL.md` with install steps,
    examples, and troubleshooting.
+
+## Project Mode
+
+Bringup. Commits go straight to `main`, no feature branches, no PR
+workflow yet. Promote to protected mode (and remove this breadcrumb)
+when the first feature branch + PR lands.
+
+## Session history
+
+See [SESSION-SUMMARIES.md](SESSION-SUMMARIES.md).
