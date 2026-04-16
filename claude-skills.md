@@ -70,6 +70,13 @@ and common dev CLIs. Pins self-heal on LTS rollover (see SKILL.md).
 
 Targets: any host with Docker CE. Latest LTS / public-GA only.
 
+### review-plan
+
+Path: `.claude/skills/review-plan/`
+Entry point: SKILL.md (triggered by `/review-plan` or phrases like "review the plan", "harden the plan", "add checkpoints to the plan")
+
+Pre-implementation hardening pass for plans produced by `superpowers:writing-plans`. Runs a simplification review (inline, DRY/YAGNI/scope lens) plus an adversarial cross-model review (`/codex:adversarial-review`) over the plan document, lets the user triage findings, applies accepted edits, and — for long plans (6+ tasks) — injects explicit `### Checkpoint` blocks at logical subsystem/layer/dependency breaks. Short plans (≤5 tasks) skip checkpoint injection. Detects parallel-track plans and offers a worktree-per-track execution model so commits do not interleave and per-track `/codex:review --scope branch` stays clean. The injected checkpoint blocks dispatch both `superpowers:code-reviewer` (same-model) and `/codex:review` (cross-model) at each batch. After the skill runs, the user says "continue with implementation" and normal execution (`executing-plans` recommended) picks up, honoring the checkpoint blocks natively.
+
 ### end-session
 
 Path: `.claude/skills/end-session/`
