@@ -98,3 +98,41 @@ Future-you notes:
   Do not add it back without also removing the sprite-exec handler
   in the hook — otherwise you re-introduce fail-open semantics.
 - New memory entry: `feedback_fail_closed_permission_hooks.md`.
+
+## 2026-04-16 — main (docs: per-skill READMEs + root overview)
+
+- Added plain-English `README.md` to the three skills that lacked one:
+  `review-plan/`, `ubuntu-debloat/`, and `hardened-shell/` (short
+  landing page that points at the existing `USAGE.md` for the deep
+  guide). Every skill now has a human-facing README sibling to its
+  `SKILL.md`.
+- Created the root `README.md` as the project's human landing page:
+  what's in the repo, a **Skills at a glance** table with per-skill
+  install targets, Linux/macOS `ln -s` and Windows `mklink /J` install
+  commands, pointers to `claude-skills.md` and `SESSION-SUMMARIES.md`,
+  and the repo's skill conventions.
+- Labeled **installation intent** explicitly per skill (previously only
+  `end-session` was called out as user-level, the rest were ambiguous).
+  All four are flagged **user-level** — `hardened-shell` is
+  additionally a user-level CLI install at `~/.local/bin/hshell`.
+  Intent now appears in each skill's README, in `claude-skills.md`, and
+  in the root README's summary table.
+- Updated `CLAUDE.md` skill conventions: `README.md` per skill is now
+  **required**; `USAGE.md` is optional and reserved for skills that
+  ship a CLI/runtime users drive directly. Updated the "Adding a new
+  skill" checklist to match (README step added, claude-skills.md and
+  root README entries made explicit).
+- No tests/lint in this repo; quality gates skipped. Doc-only session.
+
+Future-you notes:
+- The repo convention is now: `SKILL.md` (Claude-facing, thin) +
+  `README.md` (human overview + install intent, required) +
+  `USAGE.md` (deep user guide, optional, only for CLI-bearing skills
+  like `hardened-shell`). Do not regress to USAGE-only — every new
+  skill must ship a README.
+- When adding a skill, remember to touch **three** index surfaces:
+  its own README, `claude-skills.md`, and the root README's *Skills
+  at a glance* table. The `CLAUDE.md` checklist enumerates them.
+- No new memory entries — the README/USAGE convention lives in
+  `CLAUDE.md` where it belongs (durable project rule, not personal
+  context).
