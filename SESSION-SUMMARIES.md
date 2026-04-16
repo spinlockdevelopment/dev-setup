@@ -68,3 +68,33 @@ Future-you notes:
 - New memory entry saved: `feedback_parallel_worktrees.md` — captures
   the "worktree-per-track, merge locally, push only the feature branch"
   preference surfaced in this session.
+
+## 2026-04-16 — main (tune global Claude config)
+
+- No changes to this repo. Session was run from here but edited global
+  Claude config only: `~/.claude/hooks/cd-strip-permission.js` and
+  `~/.claude/settings.json`.
+- Extended `cd-strip-permission.js` with two new branches.
+  (a) Force-allow `git commit -m "$(cat <<'EOF' ... EOF)"` — the glob
+  `Bash(git commit -m *)` misses multi-line heredoc bodies
+  intermittently (~1/30 per a 10-day, 80-session transcript scan).
+  (b) Parse `sprite exec -- [bash -c '<body>' | <cmd>]`, strip an
+  inner `cd <path> &&` prefix, then re-evaluate the inner command
+  against the user's allow/ask/deny rules — so destructive inner
+  commands (`rm -rf`, etc.) surface as `ask` even inside the sandbox.
+- Added six allow patterns to `~/.claude/settings.json`: `mkdir *`,
+  `bash -n *`, `chmod +x *`, `curl -sI http://localhost:*`, and
+  `sprite api *`. The `sprite exec *` blanket allow was *not* added,
+  so the new hook is fail-closed: a hook error prompts instead of
+  silently allowing.
+- No tests / lint in this repo; quality gates skipped.
+
+Future-you notes:
+- If you touch `cd-strip-permission.js`, pipe-test every branch
+  before shipping. There are now four: heredoc git commit, sprite
+  exec, cd-prefix, passthrough. Payload shape is
+  `{"tool_name":"Bash","tool_input":{"command":"..."}}`.
+- `Bash(sprite exec *)` is deliberately absent from the allow list.
+  Do not add it back without also removing the sprite-exec handler
+  in the hook — otherwise you re-introduce fail-open semantics.
+- New memory entry: `feedback_fail_closed_permission_hooks.md`.
