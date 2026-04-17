@@ -36,7 +36,12 @@ STUDIO_VERSION="2025.3.3.7"
 STUDIO_DIR="/opt/android-studio"
 STUDIO_BIN="${STUDIO_DIR}/bin/studio.sh"
 
-if [[ -x "$STUDIO_BIN" ]]; then
+if [[ "$(dpkg_arch)" != "amd64" ]]; then
+    # Google does not publish a Linux arm64 Android Studio tarball (only x86_64).
+    # developer.android.com/studio lists exactly one tarball, the linux x86_64 build.
+    # corrected 2026-04-17 — earlier commit wrongly assumed an arm64 tarball existed
+    log_skip "Android Studio skipped on $(dpkg_arch) — Google ships only x86_64 Linux"
+elif [[ -x "$STUDIO_BIN" ]]; then
     log_skip "Android Studio already installed at $STUDIO_DIR"
 else
     if $VERIFY_MODE; then

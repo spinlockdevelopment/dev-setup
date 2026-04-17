@@ -43,6 +43,29 @@ CLI=(
 apt_install "${CORE[@]}"
 apt_install "${CLI[@]}"
 
+# Ubuntu ships fd-find/bat under awkward binary names (fdfind, batcat) to avoid
+# collisions with unrelated legacy packages. Symlink them to their upstream names
+# under /usr/local/bin so `fd`/`bat` Just Work.
+# added 2026-04-17
+for pair in "fd:fdfind" "bat:batcat"; do
+    want=${pair%%:*} have=${pair##*:}
+    src=$(command -v "$have" 2>/dev/null || true)
+    if [[ -z "$src" ]]; then
+        log_skip "$have not present yet — skipping /usr/local/bin/$want symlink"
+        continue
+    fi
+    dest=/usr/local/bin/$want
+    if [[ -L "$dest" && "$(readlink -f "$dest")" == "$(readlink -f "$src")" ]]; then
+        log_skip "$dest already points at $src"
+    elif $VERIFY_MODE; then
+        [[ -e "$dest" ]] && log_ok "$dest present" || log_fail "$dest symlink missing"
+    else
+        require_sudo
+        sudo ln -sf "$src" "$dest"
+        log_ok "symlinked $dest -> $src"
+    fi
+done
+
 # GitHub CLI — upstream repo, not Ubuntu's stale one
 apt_add_repo "github-cli" \
     "https://cli.github.com/packages/githubcli-archive-keyring.gpg" \

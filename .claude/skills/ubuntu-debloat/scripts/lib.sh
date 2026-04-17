@@ -40,6 +40,22 @@ require_ubuntu() {
     fi
 }
 
+# dpkg architecture ("amd64", "arm64", ...) — normalized, unlike `uname -m`.
+dpkg_arch() { dpkg --print-architecture; }
+
+# Skip the calling script cleanly if we're not on one of the listed dpkg archs.
+# Usage: require_arch amd64          # only amd64
+#        require_arch amd64 arm64    # either
+require_arch() {
+    local want arch
+    arch=$(dpkg_arch)
+    for want in "$@"; do
+        [[ "$arch" == "$want" ]] && return 0
+    done
+    log_skip "skipping on $arch (supported: $*)"
+    exit 0
+}
+
 require_sudo() {
     if [[ $EUID -eq 0 ]]; then
         log_fail "do not run as root; run as your user — sudo will be used where needed"

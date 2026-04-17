@@ -33,7 +33,11 @@ for c in git curl wget gpg lsb_release make gcc rg fd bat fzf jq gh tmux htop tr
 done
 
 log_step "Browser + IDEs"
-check assert_cmd google-chrome-stable "Google Chrome"
+if [[ "$(dpkg_arch)" == "amd64" ]]; then
+    check assert_cmd google-chrome-stable "Google Chrome"
+else
+    log_skip "Google Chrome check — no upstream build for $(dpkg_arch)"
+fi
 check assert_cmd code "VS Code"
 
 log_step "Container toolchain"
@@ -67,7 +71,9 @@ fi
 log_step "Android dev"
 check assert_cmd adb "adb"
 check assert_cmd fastboot "fastboot"
-if [[ -x /opt/android-studio/bin/studio.sh ]]; then
+if [[ "$(dpkg_arch)" != "amd64" ]]; then
+    log_skip "Android Studio check — Google ships only x86_64 Linux build"
+elif [[ -x /opt/android-studio/bin/studio.sh ]]; then
     log_ok "Android Studio installed"
 else
     log_fail "Android Studio not installed"
@@ -81,7 +87,7 @@ else
     log_fail "unattended-upgrades not enabled"
     fails=$((fails + 1))
 fi
-if sudo ufw status 2>/dev/null | grep -q "Status: active"; then
+if systemctl is-active ufw &>/dev/null; then
     log_ok "ufw active"
 else
     log_fail "ufw not active"

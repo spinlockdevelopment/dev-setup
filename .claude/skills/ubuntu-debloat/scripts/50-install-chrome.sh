@@ -5,6 +5,9 @@ source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 log_step "Google Chrome (stable, from Google's apt repo)"
 
 require_ubuntu
+# Google does not ship a Linux arm64/armhf Chrome build; skip cleanly elsewhere.
+# added 2026-04-17 after install failed on aarch64
+require_arch amd64
 
 apt_add_repo "google-chrome" \
     "https://dl.google.com/linux/linux_signing_key.pub" \
