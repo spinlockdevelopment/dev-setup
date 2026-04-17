@@ -1,6 +1,6 @@
 ---
 name: ubuntu-debloat
-description: Debloat Ubuntu desktop and set it up for Claude Code + development. Purges games, office apps, Firefox, snapd; installs Chrome, Docker CE, mise-managed Python/Node/Go/JDK, Android Studio, VS Code from upstream repos; supports idempotent re-runs via `--verify`. Use for fresh Ubuntu dev-box setup, debloat requests, installing dev toolchains on Ubuntu, verifying an existing Ubuntu dev env, or checking for drift/updates.
+description: Debloat Ubuntu desktop and set it up for Claude Code + development. Purges games, office apps, Firefox, snapd; installs Chrome (amd64), Brave (amd64+arm64), Docker CE, mise-managed Python/Node/Go/JDK, Android Studio, VS Code from upstream repos; supports idempotent re-runs via `--verify`. Use for fresh Ubuntu dev-box setup, debloat requests, installing dev toolchains on Ubuntu, verifying an existing Ubuntu dev env, or checking for drift/updates.
 ---
 
 # Ubuntu debloat + dev setup
@@ -12,7 +12,9 @@ drift.
 ## What this does
 
 - Purges games, office apps, Firefox, snapd, and default Ubuntu desktop bloat
-- Installs Chrome, Docker CE, VS Code, Android Studio via native upstream repos
+- Installs Chrome (amd64) and Brave (amd64 + arm64) — Chromium-based browser
+  coverage on both arches until Google ships arm64 Chrome debs
+- Installs Docker CE, VS Code, Android Studio via native upstream repos
 - Installs `mise` and uses it to manage Python, Node (LTS), Go, Java (LTS)
 - Adds common dev CLI tools (ripgrep, fd, bat, fzf, gh, jq, tmux, etc.)
 - Enables `unattended-upgrades` for security patches
@@ -113,7 +115,8 @@ before running them — don't wait for something to break.
 | `scripts/20-debloat.sh` | Purge games, office apps, Firefox, misc GNOME bloat |
 | `scripts/30-remove-snap.sh` | Completely remove snapd |
 | `scripts/40-install-core.sh` | `build-essential` + common CLI tools |
-| `scripts/50-install-chrome.sh` | Google Chrome from Google's apt repo |
+| `scripts/50-install-chrome.sh` | Google Chrome from Google's apt repo (amd64 only) |
+| `scripts/51-install-brave.sh` | Brave from Brave's apt repo (amd64 + arm64) |
 | `scripts/60-install-mise.sh` | mise + Python / Node (LTS) / Go / JDK (LTS) |
 | `scripts/70-install-docker.sh` | Docker CE from docker.com repo |
 | `scripts/80-install-android.sh` | Android Studio + platform tools |

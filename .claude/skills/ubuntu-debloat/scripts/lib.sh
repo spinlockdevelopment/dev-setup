@@ -113,8 +113,13 @@ apt_add_repo() {
     # .sources files require deb822 multiline format and fail to parse otherwise.
     # fixed on 2026-04-13 after vscode install hit "Malformed stanza" error.
     local source_file="/etc/apt/sources.list.d/${name}.list"
+    # Accept a pre-existing deb822 `.sources` file from older installs as
+    # "already configured" — same repo, different container format; no reason
+    # to churn it. Added 2026-04-17 after verify flagged vscode.sources as
+    # unconfigured even though apt was happily fetching from it.
+    local source_file_alt="/etc/apt/sources.list.d/${name}.sources"
 
-    if [[ -f "$keyring" && -f "$source_file" ]]; then
+    if [[ -f "$keyring" && ( -f "$source_file" || -f "$source_file_alt" ) ]]; then
         log_skip "apt repo already configured: $name"
         return 0
     fi

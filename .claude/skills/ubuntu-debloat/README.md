@@ -4,7 +4,8 @@ Debloats a fresh Ubuntu desktop and sets it up for Claude Code + dev
 work.
 
 Purges games, office apps, Firefox, snapd (with an apt pin). Installs
-Chrome, Docker CE, VS Code, Android Studio from upstream repos.
+Chrome (amd64) and Brave (amd64 + arm64) for browser coverage, plus
+Docker CE, VS Code, Android Studio from upstream repos.
 Manages Python, Node (LTS), Go, Java (LTS) via `mise`. Enables
 `unattended-upgrades`. Scripts are idempotent, ship a `--verify`
 read-only mode, and self-heal when pinned versions drift.

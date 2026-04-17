@@ -31,6 +31,7 @@ PHASES=(
     "30-remove-snap.sh"
     "40-install-core.sh"
     "50-install-chrome.sh"
+    "51-install-brave.sh"
     "60-install-mise.sh"
     "70-install-docker.sh"
     "80-install-android.sh"

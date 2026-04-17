@@ -21,7 +21,9 @@ apt_add_repo "adoptium" \
 apt_install "$JDK_PKG"
 
 # --- Android platform-tools (adb, fastboot) via Ubuntu package --------------
-apt_install android-tools-adb android-tools-fastboot
+# renamed 2026-04-17: Ubuntu 24.04+ ships these as `adb` and `fastboot`
+# (same-name packages); the old `android-tools-*` meta-packages no longer exist.
+apt_install adb fastboot
 
 # --- Android Studio (tarball to /opt) ---------------------------------------
 # Upstream download page: https://developer.android.com/studio
@@ -89,16 +91,23 @@ fi
 
 # --- Dependencies for running emulators on x86_64 ---------------------------
 # KVM for hardware accel; adbkeys perms handled by Android Studio on first run.
-apt_install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
+# Gated on amd64 because `qemu-kvm` is a transitional meta-package that only
+# exists on amd64/i386. On arm64 there is no Android Studio (Google ships
+# x86_64 Linux only), so the emulator toolchain is moot anyway. Gated 2026-04-17.
+if [[ "$(dpkg_arch)" == "amd64" ]]; then
+    apt_install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
 
-if ! id -nG "$USER" | grep -qw kvm; then
-    if $VERIFY_MODE; then
-        log_fail "user $USER not in kvm group (needed for emulator accel)"
+    if ! id -nG "$USER" | grep -qw kvm; then
+        if $VERIFY_MODE; then
+            log_fail "user $USER not in kvm group (needed for emulator accel)"
+        else
+            require_sudo
+            sudo usermod -aG kvm "$USER"
+            log_ok "added $USER to kvm group (log out/in for effect)"
+        fi
     else
-        require_sudo
-        sudo usermod -aG kvm "$USER"
-        log_ok "added $USER to kvm group (log out/in for effect)"
+        log_skip "user $USER already in kvm group"
     fi
 else
-    log_skip "user $USER already in kvm group"
+    log_skip "KVM/emulator deps skipped on $(dpkg_arch) (Android Studio is amd64-only)"
 fi

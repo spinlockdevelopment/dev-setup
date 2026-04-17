@@ -72,9 +72,12 @@ apt_add_repo "github-cli" \
     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/github-cli.gpg] https://cli.github.com/packages stable main"
 apt_install gh
 
-# Enable ufw with sane defaults (deny incoming, allow outgoing)
+# Enable ufw with sane defaults (deny incoming, allow outgoing).
+# Verify path uses `systemctl is-active` (no sudo needed) instead of
+# `sudo ufw status`, which false-failed in --verify when sudo can't prompt.
+# fixed 2026-04-17
 if $VERIFY_MODE; then
-    if sudo ufw status | grep -q "Status: active"; then
+    if systemctl is-active --quiet ufw; then
         log_ok "ufw active"
     else
         log_fail "ufw not active"

@@ -42,7 +42,8 @@ Installation intent: **user-level** (Linux only) — symlink to `~/.claude/skill
 
 Debloats a fresh Ubuntu desktop install and sets it up for Claude Code and
 development. Removes games, office apps, Firefox, and snapd (with an apt pin
-to keep it out). Installs Chrome, Docker CE, mise-managed Python/Node/Go/JDK,
+to keep it out). Installs Chrome (amd64) and Brave (amd64 + arm64) for
+browser coverage, plus Docker CE, mise-managed Python/Node/Go/JDK,
 Android Studio, and VS Code from native upstream repos. Enables
 unattended-upgrades and `ufw`. Ships idempotent scripts with a `--verify`
 mode and self-heals on upstream version drift (via

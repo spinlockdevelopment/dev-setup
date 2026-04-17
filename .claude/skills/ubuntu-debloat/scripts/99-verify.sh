@@ -38,6 +38,7 @@ if [[ "$(dpkg_arch)" == "amd64" ]]; then
 else
     log_skip "Google Chrome check — no upstream build for $(dpkg_arch)"
 fi
+check assert_cmd brave-browser "Brave"
 check assert_cmd code "VS Code"
 
 log_step "Container toolchain"
