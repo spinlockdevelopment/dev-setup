@@ -30,6 +30,7 @@ project. `sprites-dev` is **project-level** — junction it into the
 | Skill | What it's for | Install target |
 |---|---|---|
 | [`end-session`](./.claude/skills/end-session/) | Cleanly wraps up a working session before `/clear` — syncs docs, memory, TODOs, runs quality gates, opens a PR with auto-merge when work is done. | `~/.claude/skills/end-session/` |
+| [`init-project`](./.claude/skills/init-project/) | Brings any project up to baseline for working with Claude — git init (if needed), bringup-vs-protected mode breadcrumb, minimal `CLAUDE.md`/`README.md`, canonical PR-workflow rules block, auto-junctions dev-setup dep skills, reports missing plugin skills. Safe to re-run. | `~/.claude/skills/init-project/` |
 | [`hardened-shell`](./.claude/skills/hardened-shell/) | Ships `hshell`, a launcher that runs Claude in `--dangerously-skip-permissions` mode inside a locked-down Docker sandbox. | `~/.claude/skills/hardened-shell/` + `hshell` CLI at `~/.local/bin/hshell` |
 | [`review-plan`](./.claude/skills/review-plan/) | Pre-implementation hardening pass on superpowers plans — cross-model adversarial review plus checkpoint-block injection at subsystem seams. | `~/.claude/skills/review-plan/` |
 | [`sprites-dev`](./.claude/skills/sprites-dev/) | Correct-usage reference for the `sprite` CLI and sprites.dev API on Windows/Git Bash — avoids path mangling, flag-ordering bugs, and large-file upload failures. | `<project>/.claude/skills/sprites-dev/` (project-level) |
@@ -51,6 +52,7 @@ you want into `~/.claude/skills/`.
 ```bash
 # one skill at a time (recommended — pick the ones you actually want)
 ln -s ~/src/dev-setup/.claude/skills/end-session      ~/.claude/skills/end-session
+ln -s ~/src/dev-setup/.claude/skills/init-project     ~/.claude/skills/init-project
 ln -s ~/src/dev-setup/.claude/skills/hardened-shell   ~/.claude/skills/hardened-shell
 ln -s ~/src/dev-setup/.claude/skills/review-plan      ~/.claude/skills/review-plan
 ln -s ~/src/dev-setup/.claude/skills/ubuntu-debloat   ~/.claude/skills/ubuntu-debloat

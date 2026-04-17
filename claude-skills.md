@@ -104,6 +104,15 @@ otherwise hit HTTP 502.
 
 Targets: any host that drives sprites.dev; especially Windows/Git Bash.
 
+### init-project
+
+Path: `.claude/skills/init-project/`
+Human guide: [`README.md`](./.claude/skills/init-project/README.md)
+Entry point: SKILL.md (triggered by `/init-project` or phrases like "initialize this project", "set up this repo for Claude", "bring this project up to baseline")
+Installation intent: **user-level** — junction to `~/.claude/skills/init-project/` so `/init-project` is available in every project
+
+Repeat-safe baseline-setup skill. Ensures the project is a git repo on `main`; detects bringup vs protected mode using the same heuristic as `end-session` (feature branches, squash-merge history, optional `gh api` branch-protection probe) and writes or removes the `## Project Mode` breadcrumb in `CLAUDE.md`; scaffolds a minimal `CLAUDE.md` and `README.md` if either is missing (asking the user only for details it can't infer from manifest files); idempotently stamps a canonical **Pull Request Workflow** rules block into `CLAUDE.md` bracketed by HTML comment markers so re-runs update in place rather than duplicate; auto-junctions dev-setup-owned dependency skills (`end-session`, `review-plan`) into `~/.claude/skills/`; and reports plugin-sourced skills (`simplify`, `codex`, `superpowers`, `claude-md-management`) that are missing with the exact install command. Self-improves in place.
+
 ### end-session
 
 Path: `.claude/skills/end-session/`
