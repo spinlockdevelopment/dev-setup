@@ -237,3 +237,45 @@ Future-you notes:
   (They existed because Firefox was a stopgap browser while we decided
   on Brave — not the skill's browser story.)
 
+
+## 2026-04-17 — main (init-project skill)
+
+- Added the `init-project` skill (user-level, junctioned into
+  `~/.claude/skills/init-project`) with a `/init-project` slash
+  wrapper. Idempotent baseline-setup for any project: ensures git repo
+  on `main`, detects bringup vs protected mode with the same heuristic
+  as `end-session`, manages the `## Project Mode` breadcrumb,
+  scaffolds minimal `CLAUDE.md`/`README.md` when missing, stamps a
+  canonical Pull Request Workflow rules block bracketed by
+  HTML-comment markers for idempotent re-stamping, auto-junctions
+  `end-session` and `review-plan` into `~/.claude/skills/`, and
+  reports missing plugin skills (`simplify`, `codex`, `superpowers`,
+  `claude-md-management`) with install commands.
+- Ships `SKILL.md`, `README.md`, three bash helpers
+  (`lib.sh`, `detect-mode.sh`, `install-dep-skill.sh`), plus
+  `.claude/commands/init-project.md`. Indexed in `claude-skills.md`
+  and root `README.md` "Skills at a glance". 8 files, ~355 LOC.
+- Caught one bug mid-build: `detect-mode.sh` was classifying this
+  bringup repo as `protected` because the bare remote ref `origin`
+  (no slash) from `git for-each-ref refs/remotes` slipped through the
+  feature-branch filter. Fixed by splitting the probe into separate
+  `refs/heads` and `refs/remotes` passes and filtering
+  remote-refs-without-a-slash. Verified: now returns `bringup`.
+- Initial session started with full brainstorm→spec flow (spec
+  committed at `docs/superpowers/specs/2026-04-17-init-project-design.md`,
+  commit e025577). User then said the ceremony was overkill for a
+  simple single-skill addition — saved as memory
+  `feedback_lightweight_for_simple_tasks.md`. Spec doc left in repo
+  as historical artifact; explicit delete was not requested.
+
+Future-you notes:
+- Ask at end: should the `docs/superpowers/specs/2026-04-17-init-project-design.md`
+  spec doc be removed? User called it overkill but didn't explicitly
+  request removal. Remove it next session if it still looks like noise.
+- On rebase today: this local was 2 commits ahead and 3 commits
+  behind origin (ubuntu-debloat work landed in parallel). Rebase was
+  clean — `claude-skills.md` was the only shared-edit file and git
+  auto-resolved because the two sessions edited different entries.
+- `detect-mode.sh` regex lesson: when filtering `git for-each-ref`
+  output, split local vs remote passes. Bare remote names have no
+  slash and collide with non-slash patterns like `main`.
