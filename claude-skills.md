@@ -84,6 +84,25 @@ Installation intent: **user-level** — symlink to `~/.claude/skills/review-plan
 
 Pre-implementation hardening pass for plans produced by `superpowers:writing-plans`. Runs a simplification review (inline, DRY/YAGNI/scope lens) plus an adversarial cross-model review (`/codex:adversarial-review`) over the plan document, lets the user triage findings, applies accepted edits, and — for long plans (6+ tasks) — injects explicit `### Checkpoint` blocks at logical subsystem/layer/dependency breaks. Short plans (≤5 tasks) skip checkpoint injection. Detects parallel-track plans and offers a worktree-per-track execution model so commits do not interleave and per-track `/codex:review --scope branch` stays clean. The injected checkpoint blocks dispatch both `superpowers:code-reviewer` (same-model) and `/codex:review` (cross-model) at each batch. After the skill runs, the user says "continue with implementation" and normal execution (`executing-plans` recommended) picks up, honoring the checkpoint blocks natively.
 
+### sprites-dev
+
+Path: `.claude/skills/sprites-dev/`
+Human guide: [`README.md`](./.claude/skills/sprites-dev/README.md)
+Entry point: SKILL.md (triggered by any mention of `sprite` CLI, sprites.dev API, `sprite exec`, `sprite api`, uploading into a sprite)
+Installation intent: **project-level** — junction to `<project>/.claude/skills/sprites-dev/` in any repo that deploys to sprites.dev. Promote to user-level later if sprites are hit from multiple projects.
+
+Correct-usage reference for the `sprite` CLI and sprites.dev API on
+Windows / Git Bash. Every rule in the skill traces to an actual failure
+seen in this project: Git Bash silently rewrites Unix-looking paths
+before `sprite` sees them, breaking `sprite exec` flag parsing, `sprite
+api` URLs, `--file` source:dest uploads, and `--dir`. The skill
+codifies the `bash -c` wrapping pattern, the `MSYS_NO_PATHCONV=1`
+prefix for API calls, the `sprite api <path> -- <curl-flags>` ordering,
+and the compress-before-upload workaround for files over ~20 MB that
+otherwise hit HTTP 502.
+
+Targets: any host that drives sprites.dev; especially Windows/Git Bash.
+
 ### end-session
 
 Path: `.claude/skills/end-session/`

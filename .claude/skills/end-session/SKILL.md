@@ -128,8 +128,10 @@ Keep it scannable. A future session should be able to read one entry and pick up
 
 Run locally, even if CI also runs them:
 - Test suite (project's command — `pytest`, `npm test`, `cargo test`, etc.)
-- Type check if the project has one (`tsc --noEmit`, `mypy`, etc.)
+- Type check if the project has one (`tsc --noEmit`, `mypy`, `svelte-check`, etc.)
 - Lint — **run even if lint is not in the CI gate**; the round-trip cost of a failing CI lint is worse than a few seconds locally
+
+**Discovery:** Do not rely solely on `CLAUDE.md` for the list of commands. Also check the CI workflow files (`.github/workflows/*.yml`, `.gitlab-ci.yml`, `Makefile`, `package.json` scripts) for quality gates that may not be documented. If you find a gate in CI that is not in `CLAUDE.md`, run it *and* add it to the Testing section of `CLAUDE.md` so future sessions do not repeat this gap.
 
 If any gate fails, stop and report. Do not proceed to review offers or PR.
 

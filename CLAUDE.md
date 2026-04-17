@@ -1,14 +1,19 @@
 # setup — reusable dev environment tools & agentic workflow skills
 
-This repo is a **curated cache of custom Claude Code skills + companion
-scripts** for setting up and maintaining developer environments. It's meant
-to be consumed two ways:
+This repo is a **curated cache of custom Claude Code skills, slash
+commands, and companion scripts** for setting up and maintaining developer
+environments. It's meant to be consumed two ways:
 
-1. **Active use inside this repo.** Skills under `.claude/skills/` auto-load
-   when Claude Code runs from this project — nothing to install.
+1. **Active use inside this repo.** Skills under `.claude/skills/` and
+   slash commands under `.claude/commands/` auto-load when Claude Code
+   runs from this project — nothing to install.
 2. **Reuse in other projects.** Symlink individual skills (or the whole
-   `.claude/skills/` tree) into another project's `.claude/skills/`, or into
-   `~/.claude/skills/` for user-wide availability.
+   `.claude/skills/` tree) into another project's `.claude/skills/`, or
+   into `~/.claude/skills/` for user-wide availability. The whole
+   `.claude/commands/` directory is junctioned to `~/.claude/commands/`
+   so every slash command here is also a user-level slash command —
+   adding a file under `.claude/commands/` here immediately makes it
+   available in every project.
 
 ## Index
 
@@ -65,6 +70,18 @@ intent, symlink instructions) see [`README.md`](./README.md).
    point, and installation intent.
 7. Add the skill to the **Skills at a glance** table in the root
    `README.md`.
+
+## Slash commands
+
+`.claude/commands/*.md` files are thin slash-command wrappers. Each one
+is a prompt file with `description` frontmatter and a short body that
+delegates to the same-named skill (passing `$ARGUMENTS` through). The
+whole directory is junctioned into `~/.claude/commands/` so commands
+here are available in every project without per-project install.
+
+Add a new command by dropping a `<name>.md` file into
+`.claude/commands/`. Keep it a few lines at most — the heavy lifting
+lives in the skill the command invokes.
 
 ## Project Mode
 

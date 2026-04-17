@@ -14,6 +14,7 @@ updates to every place the skill is installed.
 | Path | Purpose |
 |---|---|
 | [`.claude/skills/`](./.claude/skills/) | The skills themselves. Each skill is a directory with `SKILL.md`, `README.md`, and usually `scripts/`. |
+| [`.claude/commands/`](./.claude/commands/) | Thin slash-command wrappers (`<name>.md`) that delegate to same-named skills. Directory is junctioned to `~/.claude/commands/` so every file here is also a user-level slash command. |
 | [`claude-skills.md`](./claude-skills.md) | Authoritative index of every skill in this repo — read this before adding, editing, or recommending a skill. |
 | [`CLAUDE.md`](./CLAUDE.md) | Claude-facing guidance for working inside this repo (conventions, project mode, history pointer). |
 | [`SESSION-SUMMARIES.md`](./SESSION-SUMMARIES.md) | Append-only log of what each working session accomplished. |
@@ -21,15 +22,17 @@ updates to every place the skill is installed.
 
 ## Skills at a glance
 
-All four skills here are **user-level**: intended to be symlinked into
-`~/.claude/skills/` so Claude can reach them in any project, not only
-from inside this repo.
+Most skills here are **user-level**: intended to be symlinked (junctioned
+on Windows) into `~/.claude/skills/` so Claude reaches them in any
+project. `sprites-dev` is **project-level** — junction it into the
+`.claude/skills/` of whichever project deploys to sprites.dev.
 
 | Skill | What it's for | Install target |
 |---|---|---|
 | [`end-session`](./.claude/skills/end-session/) | Cleanly wraps up a working session before `/clear` — syncs docs, memory, TODOs, runs quality gates, opens a PR with auto-merge when work is done. | `~/.claude/skills/end-session/` |
 | [`hardened-shell`](./.claude/skills/hardened-shell/) | Ships `hshell`, a launcher that runs Claude in `--dangerously-skip-permissions` mode inside a locked-down Docker sandbox. | `~/.claude/skills/hardened-shell/` + `hshell` CLI at `~/.local/bin/hshell` |
 | [`review-plan`](./.claude/skills/review-plan/) | Pre-implementation hardening pass on superpowers plans — cross-model adversarial review plus checkpoint-block injection at subsystem seams. | `~/.claude/skills/review-plan/` |
+| [`sprites-dev`](./.claude/skills/sprites-dev/) | Correct-usage reference for the `sprite` CLI and sprites.dev API on Windows/Git Bash — avoids path mangling, flag-ordering bugs, and large-file upload failures. | `<project>/.claude/skills/sprites-dev/` (project-level) |
 | [`ubuntu-debloat`](./.claude/skills/ubuntu-debloat/) | Debloats fresh Ubuntu desktop installs and sets them up for dev work. Idempotent; supports `--verify`; self-heals on upstream drift. | `~/.claude/skills/ubuntu-debloat/` (Linux only) |
 
 Each skill has its own `README.md` with a plain-English overview, an

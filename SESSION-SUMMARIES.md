@@ -136,3 +136,52 @@ Future-you notes:
 - No new memory entries — the README/USAGE convention lives in
   `CLAUDE.md` where it belongs (durable project rule, not personal
   context).
+
+## 2026-04-16 — main (session 3)
+
+- Ported the sprites.dev runbook from
+  `RadioCalls-Dashboard/.claude/skills/sprites-dev.md` (flat file)
+  into this repo as a proper skill at
+  `.claude/skills/sprites-dev/{SKILL.md, README.md}`. Content preserved
+  verbatim; frontmatter description tightened for trigger reliability.
+  Deleted the old flat runbook and junctioned
+  `RadioCalls-Dashboard/.claude/skills/sprites-dev` back to the new
+  canonical location so that project keeps using it.
+- Added explicit slash-command wrappers at
+  `.claude/commands/{review-plan.md, end-session.md}` and junctioned
+  the whole `.claude/commands/` directory to `~/.claude/commands/` so
+  every file under it is a user-level slash command in every project.
+  Rationale: `/<name>` typed in a fresh session doesn't always resolve
+  via the skill-name auto-match until the skill has been explicitly
+  referenced — explicit command files bypass that.
+- Updated `claude-skills.md` (new `sprites-dev` entry), root `README.md`
+  (new `.claude/commands/` row in "What's in here", new `sprites-dev`
+  row in "Skills at a glance", install-intent language generalized),
+  and `CLAUDE.md` (preamble now names commands explicitly + a new
+  "Slash commands" section documenting the wrapper pattern and the
+  directory-junction install).
+- Added a `feedback` memory capturing the rule "always ship an explicit
+  `.claude/commands/<name>.md` wrapper for any user-invocable slash
+  command — don't rely on skill-name auto-matching." The user's own
+  observation from this session.
+- Swept in a pre-existing uncommitted improvement to
+  `end-session/SKILL.md`: added `svelte-check` to the typecheck
+  examples and inserted a "Discovery" note in step 11 about checking
+  CI workflow files for quality gates not documented in `CLAUDE.md`.
+- No tests/lint in this repo; quality gates skipped.
+
+Future-you notes:
+- Install pattern for user-level slash commands is now **whole-directory
+  junction**: `mklink /J 'C:\Users\<you>\.claude\commands'
+  'C:\Users\<you>\src\dev-setup\.claude\commands'`. Any new file under
+  `.claude/commands/` here becomes user-level automatically. If a
+  command should be project-only instead, put it in that project's
+  own `.claude/commands/`, not here.
+- `sprites-dev` is deliberately project-level install intent for now
+  (tied to how RadioCalls-Dashboard deploys). Promote to user-level
+  by symlinking/junctioning into `~/.claude/skills/sprites-dev/` if
+  sprites end up being hit from multiple projects.
+- `hardened-shell` and `ubuntu-debloat` are still **not** linked into
+  `~/.claude/skills/`. User explicitly chose to leave those unlinked
+  for now. If you're doing user-wide install later, add them; do not
+  silently propose it.
