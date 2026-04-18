@@ -1,107 +1,140 @@
-# dev-setup
+# spinlockdevelopment — Claude Code plugin marketplace
 
-A curated cache of custom **Claude Code skills** plus companion scripts
-for setting up and maintaining developer environments.
+Personal Claude Code plugin marketplace. Ships three plugins grouping
+skills + slash commands for project lifecycle, developer-environment
+setup, and deployment-target references.
 
-This repo is the canonical source. Skills here are meant to be
-**symlinked out** of this repo to wherever they need to run (typically
-`~/.claude/skills/` for user-wide availability). That way every
-environment points at one checkout and `git pull` here propagates
-updates to every place the skill is installed.
+Skills were previously consumed from this repo by symlinking individual
+directories into `~/.claude/skills/`. That model broke on Claude Code
+Web (sandboxes start fresh, can't see user-level symlinks), so the repo
+was refactored into a marketplace. Each project now opts in by listing
+this marketplace and the plugins it wants in its own
+`.claude/settings.json`.
 
 ## What's in here
 
 | Path | Purpose |
 |---|---|
-| [`.claude/skills/`](./.claude/skills/) | The skills themselves. Each skill is a directory with `SKILL.md`, `README.md`, and usually `scripts/`. |
-| [`.claude/commands/`](./.claude/commands/) | Thin slash-command wrappers (`<name>.md`) that delegate to same-named skills. Directory is junctioned to `~/.claude/commands/` so every file here is also a user-level slash command. |
-| [`claude-skills.md`](./claude-skills.md) | Authoritative index of every skill in this repo — read this before adding, editing, or recommending a skill. |
-| [`CLAUDE.md`](./CLAUDE.md) | Claude-facing guidance for working inside this repo (conventions, project mode, history pointer). |
-| [`SESSION-SUMMARIES.md`](./SESSION-SUMMARIES.md) | Append-only log of what each working session accomplished. |
-| [`docs/`](./docs/) | Plans and longer-form docs (currently just `docs/superpowers/`). |
+| [`.claude-plugin/marketplace.json`](./.claude-plugin/marketplace.json) | Marketplace registry — lists all plugins and how to find them. |
+| [`plugins/spindev-core/`](./plugins/spindev-core/) | Session / project-lifecycle primitives. Slash commands: `/end-session`, `/init-project`, `/review-plan`. |
+| [`plugins/spindev-devenv/`](./plugins/spindev-devenv/) | Developer-machine setup (`ubuntu-debloat`) and sandbox execution (`hardened-shell` + `hshell` CLI). |
+| [`plugins/spindev-deploy/`](./plugins/spindev-deploy/) | Deployment-target reference skills (currently `sprites-dev`). |
+| [`claude-skills.md`](./claude-skills.md) | Authoritative index of every skill across all plugins. |
+| [`CLAUDE.md`](./CLAUDE.md) | Claude-facing guidance for working inside this repo. |
+| [`SESSION-SUMMARIES.md`](./SESSION-SUMMARIES.md) | Append-only log of session outcomes. |
 
-## Skills at a glance
+## Plugin catalog
 
-Most skills here are **user-level**: intended to be symlinked (junctioned
-on Windows) into `~/.claude/skills/` so Claude reaches them in any
-project. `sprites-dev` is **project-level** — junction it into the
-`.claude/skills/` of whichever project deploys to sprites.dev.
+### `spindev-core`
 
-| Skill | What it's for | Install target |
-|---|---|---|
-| [`end-session`](./.claude/skills/end-session/) | Cleanly wraps up a working session before `/clear` — syncs docs, memory, TODOs, runs quality gates, opens a PR with auto-merge when work is done. | `~/.claude/skills/end-session/` |
-| [`init-project`](./.claude/skills/init-project/) | Brings any project up to baseline for working with Claude — git init (if needed), bringup-vs-protected mode breadcrumb, minimal `CLAUDE.md`/`README.md`, canonical PR-workflow rules block, auto-junctions dev-setup dep skills, reports missing plugin skills. Safe to re-run. | `~/.claude/skills/init-project/` |
-| [`hardened-shell`](./.claude/skills/hardened-shell/) | Ships `hshell`, a launcher that runs Claude in `--dangerously-skip-permissions` mode inside a locked-down Docker sandbox. | `~/.claude/skills/hardened-shell/` + `hshell` CLI at `~/.local/bin/hshell` |
-| [`review-plan`](./.claude/skills/review-plan/) | Pre-implementation hardening pass on superpowers plans — cross-model adversarial review plus checkpoint-block injection at subsystem seams. | `~/.claude/skills/review-plan/` |
-| [`sprites-dev`](./.claude/skills/sprites-dev/) | Correct-usage reference for the `sprite` CLI and sprites.dev API on Windows/Git Bash — avoids path mangling, flag-ordering bugs, and large-file upload failures. | `<project>/.claude/skills/sprites-dev/` (project-level) |
-| [`ubuntu-debloat`](./.claude/skills/ubuntu-debloat/) | Debloats fresh Ubuntu desktop installs and sets them up for dev work. Idempotent; supports `--verify`; self-heals on upstream drift. | `~/.claude/skills/ubuntu-debloat/` (Linux only) |
+Session / project-lifecycle primitives — enable on every project.
 
-Each skill has its own `README.md` with a plain-English overview, an
-`SKILL.md` for Claude, and (where relevant) scripts under `scripts/`.
-`hardened-shell` additionally has a deep user guide in
-[`USAGE.md`](./.claude/skills/hardened-shell/USAGE.md).
+- `end-session` — wraps up a session before `/clear`: syncs docs/memory/TODOs, runs quality gates, opens a PR with auto-merge when work is complete
+- `init-project` — brings a repo up to baseline: git + main, bringup/protected breadcrumb, minimal `CLAUDE.md`/`README.md`, canonical PR-workflow rules block
+- `review-plan` — pre-implementation hardening for superpowers plans: cross-model adversarial review + checkpoint-block injection
 
-## Installing a skill into your user profile
+Slash commands: `/end-session`, `/init-project`, `/review-plan`.
 
-Skills in this repo auto-load when Claude Code runs **inside this
-repo**. To make them available in every project, symlink each skill
-you want into `~/.claude/skills/`.
+### `spindev-devenv`
 
-### Linux / macOS
+Developer-machine setup + sandboxed agent execution. Enable on boxes
+where you actually bring up dev environments or run banshee-mode
+agents. Skip on Claude Code Web sandboxes.
 
-```bash
-# one skill at a time (recommended — pick the ones you actually want)
-ln -s ~/src/dev-setup/.claude/skills/end-session      ~/.claude/skills/end-session
-ln -s ~/src/dev-setup/.claude/skills/init-project     ~/.claude/skills/init-project
-ln -s ~/src/dev-setup/.claude/skills/hardened-shell   ~/.claude/skills/hardened-shell
-ln -s ~/src/dev-setup/.claude/skills/review-plan      ~/.claude/skills/review-plan
-ln -s ~/src/dev-setup/.claude/skills/ubuntu-debloat   ~/.claude/skills/ubuntu-debloat
+- `hardened-shell` — the `hshell` Docker sandbox launcher (banshee-mode Claude runs in a read-only-host / writable-pwd jail with credential masking). Build the image + install the launcher per the skill's [`USAGE.md`](./plugins/spindev-devenv/skills/hardened-shell/USAGE.md).
+- `ubuntu-debloat` — idempotent fresh-Ubuntu setup: purge games/office/Firefox/snapd, install Chrome, Brave, Docker CE, mise-managed Python/Node/Go/JDK, Android Studio, VS Code. Linux only.
+
+### `spindev-deploy`
+
+Deployment-target reference skills — enable on projects that deploy to
+the matching platform.
+
+- `sprites-dev` — correct-usage rules for the `sprite` CLI and sprites.dev API on Windows / Git Bash. Avoids path mangling, flag-ordering bugs, and large-file upload failures. Every rule traces to a real failure.
+
+## Install in your project
+
+Add the marketplace and turn on the plugins you want in your
+project's `.claude/settings.json`:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "spinlockdevelopment": {
+      "source": {
+        "source": "github",
+        "repo": "spinlockdevelopment/dev-setup"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "spindev-core@spinlockdevelopment": true,
+    "spindev-devenv@spinlockdevelopment": true,
+    "spindev-deploy@spinlockdevelopment": true
+  }
+}
 ```
 
-### Windows
+Keep only the plugins the project actually needs. Most projects want
+`spindev-core`; add `spindev-devenv` on developer boxes and
+`spindev-deploy` on projects that deploy to one of its target
+platforms.
 
-`ln -s` from Git Bash **silently falls back to a copy** unless
-developer mode (or admin) is on — you end up with a duplicated skill
-that doesn't follow updates. Use a directory junction instead:
+The first time Claude Code starts in a project that trusts this
+settings file, it prompts to add the marketplace. You can also add it
+manually:
 
-```bash
-MSYS2_ARG_CONV_EXCL='*' MSYS_NO_PATHCONV=1 cmd.exe /c mklink /J \
-  'C:\Users\<you>\.claude\skills\<skill-name>' \
-  'C:\Users\<you>\src\dev-setup\.claude\skills\<skill-name>'
+```shell
+/plugin marketplace add spinlockdevelopment/dev-setup
+/plugin install spindev-core@spinlockdevelopment
 ```
 
-Verify with `cmd //c dir <parent>` — a real link shows `<JUNCTION>` (or
-`<SYMLINKD>`), **not** `<DIR>`.
+Private-repository note: to get background auto-updates without
+credential prompts, export a `GITHUB_TOKEN` with repo-read scope. See
+[the Claude Code docs](https://docs.claude.com/en/docs/claude-code/plugin-marketplaces#private-repositories).
 
-### Project-scoped install (alternative)
+## Extra install steps beyond the marketplace
 
-If you only want a skill in one project, symlink it into that
-project's `.claude/skills/` instead of your user profile. Same command,
-different target.
-
-## Extra install steps beyond symlinking
-
-Most skills need only the symlink. Two need a little more:
+Most skills are pure Markdown + scripts and load as soon as the plugin
+is enabled. Two need extra host setup:
 
 - **`hardened-shell`** — also build the Docker image and install the
-  `hshell` launcher. See
-  [USAGE.md](./.claude/skills/hardened-shell/USAGE.md#installation).
-- **`ubuntu-debloat`** — runs on Ubuntu only. The skill itself doesn't
-  need anything extra installed; invoking it runs the numbered scripts
-  in `scripts/`.
+  `hshell` launcher. See [`USAGE.md`](./plugins/spindev-devenv/skills/hardened-shell/USAGE.md#installation).
+- **`ubuntu-debloat`** — runs on Ubuntu only. The skill itself needs
+  nothing extra installed; invoking it runs the numbered scripts in
+  `plugins/spindev-devenv/skills/ubuntu-debloat/scripts/`.
+
+## Developing against this repo
+
+Skills and commands auto-load when Claude Code runs inside this repo
+(they're discovered from `plugins/*/skills/` and `plugins/*/commands/`
+directly). To test the marketplace wiring end-to-end:
+
+```shell
+/plugin marketplace add /path/to/dev-setup
+/plugin install spindev-core@spinlockdevelopment
+```
+
+Validate manifests before pushing:
+
+```shell
+claude plugin validate .
+```
+
+Or inside a session:
+
+```shell
+/plugin validate .
+```
 
 ## Conventions for skills in this repo
 
 - **Thin `SKILL.md`.** It's Claude's decision tree, not an instruction
-  manual — the body tells Claude *when* to do what, scripts know *how*.
-- **`README.md` per skill.** Human-facing plain-English overview. What
-  it is, why it exists, what it does, how it's installed. Every skill
-  should have one.
-- **Tight frontmatter descriptions.** Descriptions load into context,
-  so keep them short while still specific enough to trigger reliably.
-- **Heavy lifting in `scripts/`.** Idempotent bash scripts, numerically
-  ordered when there's a phase sequence, `--verify` mode where
-  applicable.
+  manual — the body tells Claude *when* to do what; scripts know *how*.
+- **`README.md` per skill.** Human-facing plain-English overview.
+- **Tight frontmatter descriptions.** Descriptions load into context;
+  keep them short but specific enough to trigger reliably.
+- **Heavy lifting in `scripts/`.** Idempotent bash, numerically ordered
+  when there's a phase sequence, `--verify` mode where applicable.
 - **Self-healing.** Skills that pin upstream versions (URLs, LTS
   releases, package names) include instructions for Claude to detect
   drift and update pinned values in place.
@@ -110,26 +143,34 @@ Most skills need only the symlink. Two need a little more:
 
 ## Adding a new skill
 
-1. Create `.claude/skills/<name>/SKILL.md` with YAML frontmatter
+1. Pick the right plugin (`spindev-core` for lifecycle,
+   `spindev-devenv` for box/sandbox setup, `spindev-deploy` for
+   deploy-target references).
+2. Create
+   `plugins/<plugin>/skills/<name>/SKILL.md` with YAML frontmatter
    (`name`, `description`) and a thin body.
-2. Create `.claude/skills/<name>/README.md` — plain-English overview
-   plus a clear **Installation intent** section (user-level,
-   project-level, or both).
-3. Put scripts in `.claude/skills/<name>/scripts/` (numerically
-   ordered if there's a phase sequence; include a shared `lib.sh` if
-   the skill is script-heavy — follow the pattern in `ubuntu-debloat`).
-4. If the skill is user-facing (has a CLI or runtime the user drives
-   directly), add a `USAGE.md` sibling for the deep how-to (see
-   `hardened-shell/`).
-5. Add an entry to [`claude-skills.md`](./claude-skills.md) with a
-   one-line summary, entry point, and installation intent.
-6. Add the skill to the **Skills at a glance** table in this README.
+3. Create `plugins/<plugin>/skills/<name>/README.md` — plain-English
+   overview.
+4. Put scripts in `plugins/<plugin>/skills/<name>/scripts/` (numbered if
+   there's a phase sequence; include a shared `lib.sh` if
+   script-heavy — see `ubuntu-debloat`).
+5. If the skill is user-facing (has a CLI the user drives directly),
+   add `USAGE.md` alongside `README.md` — see `hardened-shell/`.
+6. Add an entry to [`claude-skills.md`](./claude-skills.md) under the
+   right plugin section.
+7. Update the plugin catalog in this README.
+
+## Adding a new slash command
+
+Drop `plugins/<plugin>/commands/<name>.md` — thin prompt file with
+`description` frontmatter, delegating to the same-named skill. Commands
+ship with the same plugin as the skill they wrap.
 
 ## Project mode
 
-**Bringup.** Commits go straight to `main`, no feature branches, no
-PR workflow yet. Promote to protected mode (and remove the breadcrumb
-in `CLAUDE.md`) when the first feature branch + PR lands.
+**Bringup.** Commits go straight to `main`, no feature branches, no PR
+workflow yet. Promote to protected mode (and remove the breadcrumb in
+`CLAUDE.md`) when the first feature branch + PR lands.
 
 ## Session history
 
