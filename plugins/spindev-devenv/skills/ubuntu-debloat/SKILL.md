@@ -66,8 +66,10 @@ and make sure `00-preflight.sh` snapshotted the package list first.
 
 This skill outlives any single release. Upstream drifts: package names get
 renamed, repo URLs change, LTS versions roll over, Ubuntu ships a new
-codename. When you (Claude) notice drift, **update this skill and its scripts
-in place** so the next run self-heals.
+codename. When you (Claude) notice drift, update this skill and its scripts
+so the next run self-heals.
+
+**This skill is served from a read-only plugin cache** (`~/.claude/plugins/cache/spindev-devenv@spinlockdevelopment/<version>/`). Edits to `SKILL.md` or `scripts/` there do not persist and do not propagate. Edit the authoritative copy at `plugins/spindev-devenv/skills/ubuntu-debloat/` in a clone of `spinlockdevelopment/dev-setup`, commit (bringup: straight to `main`; protected: feature branch + PR), and push. Consumers pick it up on their next `/plugin marketplace update`.
 
 **Triggers for self-update:**
 - `check-versions.sh` reports a pinned version is stale (e.g., JDK LTS

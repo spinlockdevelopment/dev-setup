@@ -225,10 +225,10 @@ One authorization does not carry across operations — re-ask each time.
 ## Self-improvement
 
 If during execution you notice:
-- A **clear bug** in this skill (wrong command, broken logic, outdated file path, reference to something that no longer exists): fix it in place and note the fix in the pre-clear report.
+- A **clear bug** in this skill (wrong command, broken logic, outdated file path, reference to something that no longer exists): fix it and note the fix in the pre-clear report.
 - A **judgment-call improvement** (better phrasing, a new step worth adding, reordering): describe the proposed change and ask before editing.
 
-Update the skill file at `~/.claude/skills/end-session/SKILL.md`. The idea is that this skill should get sharper every time it runs.
+**This skill is served from a read-only plugin cache** (`~/.claude/plugins/cache/spindev-core@spinlockdevelopment/<version>/`). Edits there do not persist and do not propagate. To actually apply the fix, edit the authoritative copy at `plugins/spindev-core/skills/end-session/SKILL.md` in a clone of `spinlockdevelopment/dev-setup`, commit (bringup: straight to `main`; protected: feature branch + PR), and push. Consumers pick it up on their next `/plugin marketplace update`. The idea is that this skill gets sharper every time it runs.
 
 ## Not a replacement for
 

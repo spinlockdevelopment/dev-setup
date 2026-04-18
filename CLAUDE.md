@@ -126,6 +126,41 @@ claude plugin validate .
 
 Or inside a session: `/plugin validate .`.
 
+## Self-update and contribute back (READ THIS for skill self-improvement)
+
+When a plugin is installed from this marketplace, Claude Code **copies
+its files into a read-only plugin cache** at
+`~/.claude/plugins/cache/<plugin>@<marketplace>/<version>/`. Edits made
+to files in that cache do not persist (they get wiped on the next
+`/plugin marketplace update`) and they never propagate back to this
+origin repo.
+
+So when a skill's own "self-improvement" / "self-healing" instructions
+tell Claude to "update this file in place", that means **here**, in
+`spinlockdevelopment/dev-setup` — not in the cache.
+
+### The flow
+
+1. Locate a working clone of `spinlockdevelopment/dev-setup`. If the
+   user is already in a session inside this repo, use `$PWD`. If
+   they're in a consuming project, clone the repo somewhere
+   (typically `~/src/dev-setup`) or ask them for the path.
+2. Edit `plugins/<plugin>/skills/<skill>/SKILL.md` (or the supporting
+   script / asset) in that checkout.
+3. Commit:
+   - **Bringup mode** (current — see the Project Mode section below):
+     commit straight to `main`.
+   - **Protected mode**: push a feature branch and open a PR.
+4. Push. Consumers pick the change up on their next `/plugin
+   marketplace update`.
+
+If the change is non-trivial (new feature, behaviour change rather
+than a bugfix), ask the user before committing.
+
+Individual SKILL.md files repeat a short version of this block in
+their self-improvement section so Claude sees it at runtime, where
+CLAUDE.md is not necessarily in context.
+
 ## Project Mode
 
 Bringup. Commits go straight to `main`, no feature branches, no PR

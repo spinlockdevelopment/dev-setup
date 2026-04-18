@@ -137,4 +137,6 @@ Always pause and confirm before:
 
 ## Self-improvement
 
-If you notice a clear bug in this skill during execution — wrong command, broken path, reference to something that no longer exists — fix it in place at `~/src/dev-setup/.claude/skills/init-project/` and note the fix in the final report. Judgment-call improvements: describe and ask before editing.
+If you notice a clear bug in this skill during execution — wrong command, broken path, reference to something that no longer exists — fix it and note the fix in the final report. Judgment-call improvements: describe and ask before editing.
+
+**This skill is served from a read-only plugin cache** (`~/.claude/plugins/cache/spindev-core@spinlockdevelopment/<version>/`). Edits there do not persist and do not propagate. To actually apply the fix, edit the authoritative copy at `plugins/spindev-core/skills/init-project/SKILL.md` (or its `scripts/`) in a clone of `spinlockdevelopment/dev-setup` — typically `~/src/dev-setup` — commit (bringup: straight to `main`; protected: feature branch + PR), and push. Consumers pick it up on their next `/plugin marketplace update`.

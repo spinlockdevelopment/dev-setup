@@ -126,6 +126,22 @@ Or inside a session:
 /plugin validate .
 ```
 
+## Updating a skill (contributing back)
+
+Plugins are copied into a **read-only cache** at
+`~/.claude/plugins/cache/<plugin>@<marketplace>/<version>/` when they
+install, so edits inside that cache do not persist and do not flow
+back here. To actually update a skill:
+
+1. Clone this repo (e.g. `git clone https://github.com/spinlockdevelopment/dev-setup ~/src/dev-setup`) or open an existing checkout.
+2. Edit `plugins/<plugin>/skills/<skill>/SKILL.md` (or its scripts / assets) in the clone.
+3. Commit. In bringup mode that's a direct commit to `main`; in protected mode, push a feature branch + PR.
+4. Push. Consumer projects pick up the change on their next `/plugin marketplace update`.
+
+This flow applies to Claude too: skills in this repo tell Claude to
+"self-heal" or "update in place" when they spot drift. Those edits
+belong here, not in the cache.
+
 ## Conventions for skills in this repo
 
 - **Thin `SKILL.md`.** It's Claude's decision tree, not an instruction

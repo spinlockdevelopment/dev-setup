@@ -181,4 +181,6 @@ Do not invoke this skill twice on the same plan in one session. It is idempotent
 
 ## Self-improvement
 
-If during execution you notice a clear bug in this skill — wrong command flag, broken logic, a reference to something that no longer exists — fix it in place in `.claude/skills/review-plan/SKILL.md` and mention the fix in the final report. Judgment-call improvements (better phrasing, new steps): propose and ask before editing.
+If during execution you notice a clear bug in this skill — wrong command flag, broken logic, a reference to something that no longer exists — fix it and mention the fix in the final report. Judgment-call improvements (better phrasing, new steps): propose and ask before editing.
+
+**This skill is served from a read-only plugin cache** (`~/.claude/plugins/cache/spindev-core@spinlockdevelopment/<version>/`). Edits there do not persist and do not propagate. To actually apply the fix, edit the authoritative copy at `plugins/spindev-core/skills/review-plan/SKILL.md` in a clone of `spinlockdevelopment/dev-setup`, commit (bringup: straight to `main`; protected: feature branch + PR), and push. Consumers pick it up on their next `/plugin marketplace update`.

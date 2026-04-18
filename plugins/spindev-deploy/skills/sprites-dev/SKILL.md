@@ -162,4 +162,6 @@ sprite restore v1                        # restore to named checkpoint
 
 ## Self-healing
 
-If a rule here turns out to be wrong (upstream fixed something, new failure mode discovered), update this file in place. Every rule should trace back to an actual failure — when adding a new one, prefer a one-line note about the failure that produced it over a long rationale.
+If a rule here turns out to be wrong (upstream fixed something, new failure mode discovered), update this file. Every rule should trace back to an actual failure — when adding a new one, prefer a one-line note about the failure that produced it over a long rationale.
+
+**This skill is served from a read-only plugin cache** (`~/.claude/plugins/cache/spindev-deploy@spinlockdevelopment/<version>/`). Edits there do not persist and do not propagate. To actually apply the fix, edit the authoritative copy at `plugins/spindev-deploy/skills/sprites-dev/SKILL.md` in a clone of `spinlockdevelopment/dev-setup`, commit (bringup: straight to `main`; protected: feature branch + PR), and push. Consumers pick it up on their next `/plugin marketplace update`.

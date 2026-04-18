@@ -53,7 +53,11 @@ to avoid stepping on each other.
 
 ## Self-healing
 
-Upstream drifts. When you (Claude) hit any of these, **update in place**:
+Upstream drifts. When you (Claude) hit any of these, update the skill.
+
+**This skill is served from a read-only plugin cache** (`~/.claude/plugins/cache/spindev-devenv@spinlockdevelopment/<version>/`). Edits to `Dockerfile` / `scripts/` / `SKILL.md` there do not persist and do not propagate. Edit the authoritative copy at `plugins/spindev-devenv/skills/hardened-shell/` in a clone of `spinlockdevelopment/dev-setup`, commit (bringup: straight to `main`; protected: feature branch + PR), push, and then rebuild the image locally with `scripts/build-image.sh --force` to pick up the Dockerfile change.
+
+**Triggers for self-update:**
 
 - `npm install -g @anthropic-ai/claude-code` fails or installs an ancient
   version → check for package rename or newer major.
