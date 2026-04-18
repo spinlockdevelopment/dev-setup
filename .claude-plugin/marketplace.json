@@ -5,23 +5,30 @@
     "url": "https://github.com/spinlockdevelopment"
   },
   "metadata": {
-    "description": "Personal plugin marketplace for spinlockdevelopment — Claude Code skills and slash commands for project lifecycle, developer environments, and deployment-target references."
+    "description": "Personal plugin marketplace for spinlockdevelopment — Claude Code skills and slash commands for project lifecycle, developer environments, and deployment-target references.",
+    "version": "0.1.0"
   },
   "plugins": [
     {
       "name": "spindev-core",
       "source": "./plugins/spindev-core",
-      "description": "Session / project-lifecycle primitives: /end-session, /init-project, /review-plan."
+      "description": "Session / project-lifecycle primitives: /end-session, /init-project, /review-plan.",
+      "category": "workflow",
+      "keywords": ["session-management", "project-bringup", "plan-review", "pr-workflow"]
     },
     {
       "name": "spindev-devenv",
       "source": "./plugins/spindev-devenv",
-      "description": "Developer-machine setup: hardened-shell Docker sandbox and ubuntu-debloat bringup."
+      "description": "Developer-machine setup: hardened-shell Docker sandbox and ubuntu-debloat bringup.",
+      "category": "devenv",
+      "keywords": ["ubuntu", "docker", "sandbox", "dev-environment", "mise"]
     },
     {
       "name": "spindev-deploy",
       "source": "./plugins/spindev-deploy",
-      "description": "Deployment-platform reference skills (currently sprites-dev for Windows/Git Bash)."
+      "description": "Deployment-platform reference skills (currently sprites-dev for Windows/Git Bash).",
+      "category": "deployment",
+      "keywords": ["deployment", "sprites-dev", "fly-io", "windows"]
     }
   ]
 }

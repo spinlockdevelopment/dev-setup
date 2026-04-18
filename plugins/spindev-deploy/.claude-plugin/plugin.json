@@ -5,5 +5,14 @@
   "author": {
     "name": "Chris",
     "url": "https://github.com/spinlockdevelopment"
-  }
+  },
+  "homepage": "https://github.com/spinlockdevelopment/dev-setup#spindev-deploy",
+  "repository": "https://github.com/spinlockdevelopment/dev-setup",
+  "keywords": [
+    "deployment",
+    "sprites-dev",
+    "fly-io",
+    "windows",
+    "git-bash"
+  ]
 }

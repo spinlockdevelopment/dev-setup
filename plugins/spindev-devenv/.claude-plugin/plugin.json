@@ -5,5 +5,15 @@
   "author": {
     "name": "Chris",
     "url": "https://github.com/spinlockdevelopment"
-  }
+  },
+  "homepage": "https://github.com/spinlockdevelopment/dev-setup#spindev-devenv",
+  "repository": "https://github.com/spinlockdevelopment/dev-setup",
+  "keywords": [
+    "ubuntu",
+    "docker",
+    "sandbox",
+    "dev-environment",
+    "debloat",
+    "mise"
+  ]
 }

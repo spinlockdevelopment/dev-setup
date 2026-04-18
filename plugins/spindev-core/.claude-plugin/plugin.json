@@ -5,5 +5,14 @@
   "author": {
     "name": "Chris",
     "url": "https://github.com/spinlockdevelopment"
-  }
+  },
+  "homepage": "https://github.com/spinlockdevelopment/dev-setup#spindev-core",
+  "repository": "https://github.com/spinlockdevelopment/dev-setup",
+  "keywords": [
+    "session-management",
+    "project-bringup",
+    "plan-review",
+    "workflow",
+    "pr-workflow"
+  ]
 }
