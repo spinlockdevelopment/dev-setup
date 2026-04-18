@@ -1,0 +1,9 @@
+{
+  "name": "spindev-core",
+  "version": "0.1.0",
+  "description": "Core spinlockdevelopment skills for Claude Code project and session lifecycle — end-session wrap-up, init-project baseline, and review-plan pre-implementation hardening. Ships the /end-session, /init-project, and /review-plan slash commands.",
+  "author": {
+    "name": "Chris",
+    "url": "https://github.com/spinlockdevelopment"
+  }
+}

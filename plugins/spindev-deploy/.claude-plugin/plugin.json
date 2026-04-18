@@ -1,0 +1,9 @@
+{
+  "name": "spindev-deploy",
+  "version": "0.1.0",
+  "description": "Deployment-target-specific reference skills for spinlockdevelopment. Currently ships sprites-dev (correct-usage rules for the sprite CLI and sprites.dev API on Windows/Git Bash). Enable only on projects that deploy to the matching platform.",
+  "author": {
+    "name": "Chris",
+    "url": "https://github.com/spinlockdevelopment"
+  }
+}
