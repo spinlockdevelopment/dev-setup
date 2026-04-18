@@ -139,6 +139,17 @@ AFTER confirming the new one works.
 
 ## Gotchas seen in practice
 
+- **`VAULT_*` env vars are silently stripped** at runtime. Fly reserves
+  the `VAULT_` prefix for their HashiCorp Vault integration. `fly config
+  show` lists your `VAULT_REPO=...` as present, `fly.toml` has it, but
+  `/proc/<pid>/environ` inside the container does not. Cost us a
+  silent-skipped clone and a broken first boot. Pick a different prefix
+  for any env named `VAULT_...`.
+- **Dockerfile PATH often excludes `/usr/sbin`** on minimal base images.
+  `tailscaled` (and other sbin tools) land at `/usr/sbin/tailscaled` and
+  die with `command not found` from the entrypoint. Always set
+  `PATH=".../usr/local/sbin:.../usr/sbin:.../sbin:..."` in the image ENV
+  or use absolute paths.
 - **App name format**: lowercase alphanumeric + hyphens. Dots, caps,
   underscores rejected. `tod.smith` becomes `tod-smith`.
 - **Region near user AND near API**: fly outbound to Anthropic
