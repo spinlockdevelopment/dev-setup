@@ -1,7 +1,7 @@
 {
   "name": "spindev-devenv",
   "version": "0.1.0",
-  "description": "Developer-machine setup for spinlockdevelopment — hardened-shell Docker sandbox (hshell launcher) and ubuntu-debloat (fresh Ubuntu dev-box bringup with Chrome, Brave, Docker, mise, Android Studio, VS Code). Enable on boxes where you actually set up or sandbox dev environments; skip on Claude Code Web.",
+  "description": "Developer-machine setup for spinlockdevelopment — hardened-shell Docker sandbox (hshell launcher), ubuntu-debloat (fresh Ubuntu dev-box bringup with Chrome, Brave, Docker, mise, Android Studio, VS Code), and create-gh-token (mint and wire a per-project fine-grained GitHub PAT into the git remote). Enable on boxes where you actually set up or sandbox dev environments; skip on Claude Code Web.",
   "author": {
     "name": "Chris",
     "url": "https://github.com/spinlockdevelopment"
@@ -14,6 +14,9 @@
     "sandbox",
     "dev-environment",
     "debloat",
-    "mise"
+    "mise",
+    "github",
+    "pat",
+    "git-credentials"
   ]
 }

@@ -11,7 +11,7 @@ three plugins published from `.claude-plugin/marketplace.json`:
 | Plugin | Skills |
 |---|---|
 | `spindev-core` | `end-session`, `init-project`, `review-plan` |
-| `spindev-devenv` | `hardened-shell`, `ubuntu-debloat` |
+| `spindev-devenv` | `create-gh-token`, `hardened-shell`, `ubuntu-debloat` |
 | `spindev-deploy` | `sprites-dev` |
 
 Consumer projects enable whichever plugins they need from
@@ -88,10 +88,39 @@ natively.
 
 Path: `plugins/spindev-devenv/`
 Manifest: [`.claude-plugin/plugin.json`](./plugins/spindev-devenv/.claude-plugin/plugin.json)
+Slash commands: `/create-gh-token`
 
 Developer-machine setup + sandboxed execution. Enable on boxes where you
 actually bring up dev environments or run banshee-mode agents. Skip on
 Claude Code Web sandboxes.
+
+#### `create-gh-token`
+
+Path: `plugins/spindev-devenv/skills/create-gh-token/`
+Human guide: [`README.md`](./plugins/spindev-devenv/skills/create-gh-token/README.md)
+Entry points:
+- `SKILL.md` (triggered by `/create-gh-token` or phrases like "set up a github token", "create a PAT for this project", "wire a github token into this project", "let claude push from this repo")
+- `scripts/create-gh-token.sh` — paste, validate, wire into git remote
+
+Mints a fine-grained GitHub Personal Access Token tailored to one
+project, then wires it into the project's HTTPS git remote so pushes
+work without a credential prompt. Question-driven: Claude asks four
+short questions (should the token create repos? org-wide or single
+repo? which sub-permissions: Issues / PRs / Workflows / Actions /
+Pages? branch-protection plan?), prints a concise tuned checklist
+for the GitHub PAT-creation form, then runs the script. The script
+parses `<owner>/<repo>` from `origin`, prompts silently for the
+pasted token, validates it against `/user` and the specific repo's
+endpoint, and rewrites the remote URL to embed the token via
+`x-access-token`. Token lives only in `.git/config` (local, never
+pushed). `--verify` mode probes an already-wired remote;
+`--no-set-remote` validates without touching `.git/config`. The
+README is self-contained — a permission-by-permission reference plus
+an inline org-ruleset / per-repo-protection guide so a user reading
+just that file can mint and wire the token themselves.
+
+Targets: any project with a github.com remote (HTTPS or SSH; SSH is
+auto-converted on rewrite).
 
 #### `ubuntu-debloat`
 

@@ -17,7 +17,7 @@ this marketplace and the plugins it wants in its own
 |---|---|
 | [`.claude-plugin/marketplace.json`](./.claude-plugin/marketplace.json) | Marketplace registry — lists all plugins and how to find them. |
 | [`plugins/spindev-core/`](./plugins/spindev-core/) | Session / project-lifecycle primitives. Slash commands: `/end-session`, `/init-project`, `/review-plan`. |
-| [`plugins/spindev-devenv/`](./plugins/spindev-devenv/) | Developer-machine setup (`ubuntu-debloat`) and sandbox execution (`hardened-shell` + `hshell` CLI). |
+| [`plugins/spindev-devenv/`](./plugins/spindev-devenv/) | Developer-machine setup (`ubuntu-debloat`), sandbox execution (`hardened-shell` + `hshell` CLI), and per-project GitHub PAT wiring (`create-gh-token`). |
 | [`plugins/spindev-deploy/`](./plugins/spindev-deploy/) | Deployment-target reference skills (currently `sprites-dev`). |
 | [`claude-skills.md`](./claude-skills.md) | Authoritative index of every skill across all plugins. |
 | [`CLAUDE.md`](./CLAUDE.md) | Claude-facing guidance for working inside this repo. |
@@ -41,8 +41,11 @@ Developer-machine setup + sandboxed agent execution. Enable on boxes
 where you actually bring up dev environments or run banshee-mode
 agents. Skip on Claude Code Web sandboxes.
 
+- `create-gh-token` — mint a fine-grained GitHub PAT tailored to one project (4 short questions → concise PAT-creation checklist → script that validates the pasted token and rewrites the project's HTTPS git remote so pushes work without prompting). Token lives only in `.git/config`.
 - `hardened-shell` — the `hshell` Docker sandbox launcher (banshee-mode Claude runs in a read-only-host / writable-pwd jail with credential masking). Build the image + install the launcher per the skill's [`USAGE.md`](./plugins/spindev-devenv/skills/hardened-shell/USAGE.md).
 - `ubuntu-debloat` — idempotent fresh-Ubuntu setup: purge games/office/Firefox/snapd, install Chrome, Brave, Docker CE, mise-managed Python/Node/Go/JDK, Android Studio, VS Code. Linux only.
+
+Slash commands: `/create-gh-token`.
 
 ### `spindev-deploy`
 
