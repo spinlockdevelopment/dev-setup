@@ -279,3 +279,53 @@ Future-you notes:
 - `detect-mode.sh` regex lesson: when filtering `git for-each-ref`
   output, split local vs remote passes. Bare remote names have no
   slash and collide with non-slash patterns like `main`.
+
+## 2026-04-18 — main (create-gh-token skill)
+
+- Added new skill `plugins/spindev-devenv/skills/create-gh-token/` —
+  question-driven flow that mints a project-scoped fine-grained GitHub
+  PAT and wires it into the project's HTTPS git remote so pushes work
+  without a credential prompt. Generalized successor to
+  `~/src/tod.smith/bootstrap/github-pat.sh` (which is org-specific and
+  prescriptive).
+- SKILL.md is a thin decision tree: 4 questions
+  (create-repos? org-wide vs select repos? sub-permissions: Issues /
+  PRs / Workflows / Actions / Pages? branch-protection plan?), then a
+  permission-mapping table that builds the recommended PAT-creation
+  checklist from the answers, then runs the script.
+- `scripts/create-gh-token.sh` — idempotent: parses `<owner>/<repo>`
+  from the configured remote (default `origin`; SSH or HTTPS both
+  parsed), silent-prompt for token, validates against `/user` and
+  `/repos/<owner>/<repo>`, rewrites the remote to
+  `https://x-access-token:<TOKEN>@github.com/...`. Modes: `--verify`,
+  `--no-set-remote`, `--remote <name>`, `-h`.
+- README.md is intentionally self-contained — a per-permission
+  reference table (Contents, Administration, Workflows, Actions,
+  Pages, etc.) explaining what each unlocks/blocks, plus inline
+  org-ruleset (`gh api /orgs/<org>/rulesets`) and per-repo
+  branch-protection guidance. User asked for it to be readable
+  standalone.
+- Slash command `/create-gh-token` shipped in
+  `plugins/spindev-devenv/commands/`. First slash command in the
+  devenv plugin (previously only spindev-core had any).
+- Catalog updated: root `README.md`, `claude-skills.md`,
+  `plugins/spindev-devenv/.claude-plugin/plugin.json` (description +
+  keywords: github, pat, git-credentials).
+- Validation: `claude plugin validate .` passed; `bash -n` clean;
+  `--help` and `--no-set-remote` smoke-tested with empty stdin
+  (fail-fast working).
+
+Future-you notes:
+- The Administration:RW caveat in the README is the load-bearing
+  warning. If GitHub ever ships a narrower "create-only" permission,
+  loosen Q1 in SKILL.md and the table in README.md (the self-update
+  trigger lists this).
+- The fine-grained PAT page URL
+  (https://github.com/settings/personal-access-tokens/new) appears in
+  both SKILL.md and the script. If GitHub renames it, update both.
+- Token prefix check (`github_pat_*`) is in
+  `scripts/create-gh-token.sh`. Update if GitHub changes the prefix
+  scheme.
+- Script does NOT chmod 600 `.git/config` after embedding the token —
+  README warns the user this is their call (chmod can break some
+  tooling). Revisit if rotation discipline turns out to need it.
