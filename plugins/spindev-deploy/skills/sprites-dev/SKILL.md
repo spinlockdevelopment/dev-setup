@@ -148,6 +148,39 @@ sprite checkpoint list
 sprite restore v1                        # restore to named checkpoint
 ```
 
+## Staging deploy flow
+
+The six-step pattern for standing up a short-lived preview of a
+repo-hosted app on a public sprites.dev URL. Each app layers its own
+file list, entrypoint, env, and auth on top:
+
+1. **Create + select.** `sprite create <name>` then `sprite use <name>`
+   (drops a `.sprite` marker in cwd; gitignore it).
+2. **Upload in one exec.** Repeated `--file local:remote` flags on a
+   single `sprite exec`, with a cheap sanity-check command after the
+   `--` (e.g. `bash -c "ls /app && python3 -c 'import app'"`).
+3. **Mint per-deploy secrets.** `SECRET=$(python3 -c "import secrets;
+   print(secrets.token_hex(32))")` — never commit, never reuse across
+   sprites.
+4. **Register the service.** `sprite api /v1/sprites/<name>/services/<svc>
+   -- -X PUT -H "Content-Type: application/json" -d '{...}'` with
+   `cmd`, `args`, `dir`, `http_port`, and any per-deploy `env` secrets.
+   Re-running the `PUT` replaces the service — that's the iterate loop.
+5. **Flip URL auth.** `sprite url update --auth public` for external
+   preview, or keep `sprite` (default) for org-only. Pair `public`
+   with an app-layer auth gate; don't run unauthed on an indexable URL.
+6. **Capture the URL.** `sprite info` (preferred; `sprite url` is
+   deprecated).
+
+**Teardown** — missing from the quick-ref table below:
+
+```bash
+sprite destroy <name> --force   # --force skips the TTY prompt; scripting-safe
+```
+
+For a worked example of this flow against a real invite-gated Python
+app, see [TodSmith `shared/runbooks/sprites-deploy.md`](https://github.com/SmithFamilyPlayground/TodSmith/blob/main/shared/runbooks/sprites-deploy.md).
+
 ## Quick reference
 
 | Task | Command |
