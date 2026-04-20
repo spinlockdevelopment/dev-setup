@@ -329,3 +329,52 @@ Future-you notes:
 - Script does NOT chmod 600 `.git/config` after embedding the token —
   README warns the user this is their call (chmod can break some
   tooling). Revisit if rotation discipline turns out to need it.
+
+## 2026-04-20 — main (my-status-line skill)
+
+- Added new skill `plugins/spindev-devenv/skills/my-status-line/` —
+  installs a compact Claude Code status line
+  `foldername | gitbranch | sandbox | ctx Nk (P%) | Model`. Idempotent
+  install (`scripts/install.sh`) copies `statusline.sh` +
+  `statusline.py` to `~/.claude/` (stable path; survives plugin-cache
+  version bumps) and wires `statusLine` into `~/.claude/settings.json`.
+  `--verify` mode for read-only health check; `scripts/uninstall.sh`
+  removes cleanly.
+- Shipped as two files intentionally. First attempt used
+  `python - <<HEREDOC` inside the bash wrapper and silently ate
+  Claude Code's piped statusLine JSON payload (python `-` reads the
+  script from stdin, which consumed both the script body and the
+  payload). Split into `statusline.sh` (bash wrapper) +
+  `statusline.py` (parser). The `.sh` locates `python3`/`python`/`py`
+  and execs the `.py`.
+- Uses Python (not `jq`) for JSON parsing. `jq` isn't on the user's
+  Windows Git Bash `PATH` but Python 3.13 is. Portable across
+  Linux/macOS/Windows without extra install.
+- Sandbox detection = `$HSHELL == 1` (env var set by the
+  `hardened-shell` sandbox). Max context = 1M when model id matches
+  `[1m]` (case-insensitive), else 200k. Tokens = last assistant
+  turn's `input + cache_read + cache_creation` (output excluded —
+  it's next-turn context, not current). Smoke-tested end-to-end
+  against a real transcript: `dev-setup | main | ctx 85k (8%) | Opus 4.7`.
+- Added slash command `/my-status-line` at
+  `plugins/spindev-devenv/commands/my-status-line.md`. Per memory
+  `feedback_explicit_slash_commands.md` (always ship explicit
+  `.claude/commands/<name>.md`).
+- Skipped spec/plan ceremony per memory
+  `feedback_lightweight_for_simple_tasks.md` — single-skill
+  addition, well-scoped.
+- Updated `claude-skills.md` (new entry + devenv skill-list row),
+  root `README.md` (plugin catalog), and
+  `plugins/spindev-devenv/.claude-plugin/plugin.json` description.
+- Quality gates: no tests / lint in this repo. JSON manifests
+  validated by parse. Helper smoke-tested against real transcript.
+
+Future-you notes:
+- Sandbox detection today only covers `hshell`. If Claude Code Web
+  or another sandbox grows a detectable env var, extend the
+  `HSHELL == "1"` check in `statusline.py`.
+- If a new 1M-context model id uses a suffix other than `[1m]`,
+  extend the `max_ctx` regex in `statusline.py`.
+- `install.sh` runs `chmod +x` on the sh but not the py. Not a
+  problem today (the sh execs `python <path>`) but worth remembering
+  if the py is ever intended to be invoked directly.

@@ -11,7 +11,7 @@ three plugins published from `.claude-plugin/marketplace.json`:
 | Plugin | Skills |
 |---|---|
 | `spindev-core` | `end-session`, `init-project`, `review-plan` |
-| `spindev-devenv` | `create-gh-token`, `hardened-shell`, `ubuntu-debloat` |
+| `spindev-devenv` | `create-gh-token`, `hardened-shell`, `my-status-line`, `ubuntu-debloat` |
 | `spindev-deploy` | `sprites-dev` |
 
 Consumer projects enable whichever plugins they need from
@@ -138,6 +138,26 @@ with a `--verify` mode and self-heals on upstream version drift (via
 `scripts/check-versions.sh`).
 
 Targets: Ubuntu 24.04+ desktop. Latest LTS / public-GA only.
+
+#### `my-status-line`
+
+Path: `plugins/spindev-devenv/skills/my-status-line/`
+Human guide: [`README.md`](./plugins/spindev-devenv/skills/my-status-line/README.md)
+Entry point: `scripts/install.sh` (or `scripts/install.sh --verify`, `scripts/uninstall.sh`)
+Slash command: `/my-status-line`
+
+Installs a compact Claude Code status line:
+`foldername | gitbranch | sandbox | ctx Nk (P%) | Model`. Copies a
+helper script to `~/.claude/statusline.sh` (stable path that survives
+plugin-cache version bumps) and wires `statusLine` into
+`~/.claude/settings.json`. Segments drop out when not applicable (no
+git repo → no branch; `$HSHELL != 1` → no sandbox marker). Max
+context is 1M for model ids ending in `[1m]`, else 200k. Tokens are
+parsed from the transcript JSONL (`input + cache_read +
+cache_creation` of the last assistant turn). Idempotent install;
+`--verify` mode for read-only health check. Uses Python 3 for JSON
+parsing — portable across Linux / macOS / Windows Git Bash without
+needing `jq`.
 
 #### `hardened-shell`
 
