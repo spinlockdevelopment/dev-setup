@@ -85,6 +85,59 @@ Future-you notes:
 - Command wrappers must be maintained in both `.md` and `.toml` formats in the `commands/` directory.
 - `SKILL.md` files remain the single source of truth for procedural knowledge.
 
+## 2026-04-29 — main (forgejo + restic-backup skills)
+
+- Designed the source-code backup architecture from a conversation about
+  GitHub durability. Chose **Forgejo (self-hosted, Docker) + restic with
+  two destinations** (append-only NAS via `rest-server` + write-only
+  Cloudflare R2). Rejected GitBucket (minimally maintained), fly.io
+  (adds another cloud failure surface), and `git clone --mirror`
+  tarballs (no immutability story). User is on Cloudflare already so
+  R2 replaced B2.
+- Shipped `plugins/spindev-deploy/skills/forgejo/` — Forgejo LTS v15.0.1
+  in Docker, `bootstrap.sh` for first-run admin + API token, `add-mirror.sh`
+  that uses Forgejo's pull-mirror API and auto-applies branch protection
+  (`enable_push: false`, `enable_force_push: false`) so the mirror can't
+  be force-pushed even via the API. `create-repo.sh` for on-prem-only
+  repos, `verify.sh` health check that warns on stale mirrors.
+- Shipped `plugins/spindev-deploy/skills/restic-backup/` — restic 0.18.1
+  + rest-server v0.14.0. `init-repos.sh` walks both NAS + R2 setup
+  interactively (prints Cloudflare dashboard steps inline). `run-backup.sh`
+  is the daily runner: backup → NAS, `restic copy` NAS → R2, ping
+  healthchecks.io. systemd timer at 03:17 with 30min jitter.
+- **Critical design call:** retention is decoupled. The source box's
+  NAS creds are append-only and the R2 token is PutObject-only — neither
+  can `forget` *or* `prune`. So `run-backup.sh` only writes; retention
+  is `prune-on-nas.sh`, run from the NAS itself with elevated creds and
+  an optional `--also-r2` mode that wants a separate Delete-capable R2
+  token (kept off the source box). That's the cost of true immutability.
+- `restore-drill.sh` restores latest snapshots to scratch and runs
+  `git fsck` against any bare repos found — quarterly drill is the
+  thing that catches silent backup rot.
+- Bumped `spindev-deploy` to `0.3.0`; updated `claude-skills.md`,
+  root `README.md`, and both plugin manifests with new keywords
+  (forgejo, self-hosted-git, github-mirror, restic, backup, cloudflare-r2,
+  append-only). Marketplace blurb refreshed.
+- Created remote routine `trig_01QNnLSFPtKkR79KWzjZhFan` — quarterly
+  cron `0 14 28 1,4,7,10 *`, first fire 2026-07-28T14:00Z, opens a
+  GitHub issue reminding the user to run the drill. Remote agents
+  can't reach the NAS/R2, so it's a reminder, not an automated run.
+
+Future-you notes:
+- Install was pending at session end ("try to get this setup this week").
+  When the user returns to this topic, verify chain status before
+  assuming it's running.
+- Order of operations for install: Forgejo `bootstrap.sh <hostname>` →
+  `add-mirror.sh` per GitHub repo → on the NAS run `install-rest-server.sh`
+  → back on source `install-restic.sh` + `init-repos.sh` + `add-source.sh`
+  + `install-systemd-units.sh` → `restore-drill.sh` once to confirm.
+- Pinned versions in: `forgejo/compose/.env.example`,
+  `restic-backup/scripts/install-restic.sh`,
+  `restic-backup/scripts/install-rest-server.sh`. Self-heal triggers
+  documented in each SKILL.md.
+- New memory entry: `project_source_backup_strategy.md` — committed
+  architecture, install-pending, drill schedule pointer.
+
 ## 2026-04-16 — main (docs: per-skill READMEs + root overview)
 
 - Added plain-English `README.md` to the three skills that lacked one:
