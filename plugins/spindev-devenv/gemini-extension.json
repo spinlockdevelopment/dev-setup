@@ -1,0 +1,6 @@
+{
+  "name": "spindev-devenv",
+  "version": "0.1.0",
+  "description": "Developer-machine setup and sandboxing for spindev.",
+  "contextFileName": "GEMINI.md"
+}

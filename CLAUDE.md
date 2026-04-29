@@ -1,52 +1,34 @@
-# dev-setup — Claude Code plugin marketplace
+# dev-setup — Multi-agent plugin collection
 
-This repo is a **Claude Code plugin marketplace** publishing three
-plugins' worth of custom skills, slash commands, and companion scripts
-for setting up and maintaining developer environments. It's consumed
-two ways:
+This repo is a **Codex CLI plugin marketplace**, **Claude Code plugin marketplace**, and **Gemini CLI extension collection** publishing three plugins' worth of custom skills, slash commands, hooks, and companion scripts.
 
-1. **Active use inside this repo.** Skills under `plugins/*/skills/`
-   and slash commands under `plugins/*/commands/` auto-load when Claude
-   Code runs from this project — nothing to install.
-2. **Distribution to other projects.** Each project adds this
-   marketplace to its `.claude/settings.json`
-   (`extraKnownMarketplaces`) and enables whichever plugins it wants
-   (`enabledPlugins`). Works on Claude Code desktop, CLI, and Web. See
-   [`README.md`](./README.md) for the settings snippet.
-
-The old symlink / `~/.claude/skills/` junction model is gone. Don't
-recreate it — it breaks on Claude Code Web.
+1. **Active use inside this repo.** Skills and commands auto-load when Claude Code or Gemini CLI runs from this project.
+2. **Distribution to other projects.**
+   - **Codex**: Use the repo-root `.agents/plugins/marketplace.json`
+     marketplace, which points to the local `plugins/<plugin>` folders.
+     Add it with `codex plugin marketplace add /path/to/dev-setup`.
+   - **Claude**: Add to `.claude/settings.json` (see [README.md](README.md)).
+   - **Gemini**: Install via `gemini extensions install <path>`.
 
 ## Index
 
 The authoritative catalog of skills lives in
-[`claude-skills.md`](./claude-skills.md). Read that before adding a
-skill, editing an existing one, or telling the user what's available.
-
-Migration history:
-- [`MIGRATION_INVENTORY.md`](./MIGRATION_INVENTORY.md) — skills inventory before the marketplace port
-- [`MIGRATION_PLAN.md`](./MIGRATION_PLAN.md) — grouping rationale
+[`claude-skills.md`](./claude-skills.md).
 
 ## Plugin layout
 
 ```
-.claude-plugin/marketplace.json     ← registry listing all plugins
 plugins/
   spindev-core/
-    .claude-plugin/plugin.json
-    commands/<name>.md              ← slash-command wrappers
-    skills/<name>/SKILL.md          ← skills
-    agents/<name>.md                ← subagents (e.g. pr-prepass)
-    hooks/hooks.json                ← hook registrations
-    hooks/scripts/<name>.sh         ← hook implementation scripts
-  spindev-devenv/
-    .claude-plugin/plugin.json
-    skills/<name>/
-  spindev-deploy/
-    .claude-plugin/plugin.json
-    skills/<name>/
-    hooks/hooks.json
-    hooks/scripts/<name>.sh
+    .codex-plugin/plugin.json       ← Codex manifest
+    .claude-plugin/plugin.json      ← Claude manifest
+    gemini-extension.json           ← Gemini manifest
+    commands/<name>.md              ← Claude slash commands
+    commands/<name>.toml            ← Gemini slash commands
+    skills/<name>/SKILL.md          ← shared skills
+    agents/<name>.md                ← shared subagents
+    hooks/hooks.json                ← polyglot hook registrations
+    hooks/scripts/<name>.sh         ← shared hook scripts
 ```
 
 Rules:
@@ -66,9 +48,10 @@ Rules:
   exit `0` to allow / `2` to block (with stderr message). Pair every
   hook with a "Backstop hook" section in the partner skill's SKILL.md
   so the rules and the matchers stay in sync.
-- Every plugin in `plugins/` is listed in
-  `.claude-plugin/marketplace.json`. Every listed plugin has a
-  `.claude-plugin/plugin.json`.
+- Every plugin in `plugins/` is listed in both
+  `.claude-plugin/marketplace.json` and
+  `.agents/plugins/marketplace.json`. Every listed plugin has both a
+  `.claude-plugin/plugin.json` and a `.codex-plugin/plugin.json`.
 
 ## Conventions for skills in this repo
 
@@ -154,11 +137,18 @@ ship in the same plugin as the skill they wrap.
 1. Create `plugins/<plugin-name>/.claude-plugin/plugin.json` with
    `name`, `version` (`0.1.0` for a new plugin), `description`, and
    `author`.
-2. Create `plugins/<plugin-name>/skills/` (and `commands/` if needed).
-3. Add the plugin to `plugins[]` in
+2. Create `plugins/<plugin-name>/.codex-plugin/plugin.json` with the
+   same name/version and an `interface` block for Codex marketplace
+   display.
+3. Create `plugins/<plugin-name>/skills/` (and `commands/` if needed).
+4. Add the plugin to `plugins[]` in
    [`.claude-plugin/marketplace.json`](./.claude-plugin/marketplace.json)
    with `"source": "./plugins/<plugin-name>"`.
-4. Add a section to the plugin catalog in the root
+5. Add the plugin to `plugins[]` in
+   [`.agents/plugins/marketplace.json`](./.agents/plugins/marketplace.json)
+   with a local source path of `"./plugins/<plugin-name>"`, a policy
+   block, and a category.
+6. Add a section to the plugin catalog in the root
    [`README.md`](./README.md).
 
 Resist splitting existing plugins without a clear reason — prefer

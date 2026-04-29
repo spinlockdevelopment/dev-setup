@@ -1,0 +1,6 @@
+{
+  "name": "spindev-core",
+  "version": "0.1.0",
+  "description": "Session / project-lifecycle primitives for spindev.",
+  "contextFileName": "GEMINI.md"
+}

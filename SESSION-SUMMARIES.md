@@ -69,35 +69,21 @@ Future-you notes:
   the "worktree-per-track, merge locally, push only the feature branch"
   preference surfaced in this session.
 
-## 2026-04-16 — main (tune global Claude config)
+## 2026-04-29 — main (Gemini CLI Promotion)
 
-- No changes to this repo. Session was run from here but edited global
-  Claude config only: `~/.claude/hooks/cd-strip-permission.js` and
-  `~/.claude/settings.json`.
-- Extended `cd-strip-permission.js` with two new branches.
-  (a) Force-allow `git commit -m "$(cat <<'EOF' ... EOF)"` — the glob
-  `Bash(git commit -m *)` misses multi-line heredoc bodies
-  intermittently (~1/30 per a 10-day, 80-session transcript scan).
-  (b) Parse `sprite exec -- [bash -c '<body>' | <cmd>]`, strip an
-  inner `cd <path> &&` prefix, then re-evaluate the inner command
-  against the user's allow/ask/deny rules — so destructive inner
-  commands (`rm -rf`, etc.) surface as `ask` even inside the sandbox.
-- Added six allow patterns to `~/.claude/settings.json`: `mkdir *`,
-  `bash -n *`, `chmod +x *`, `curl -sI http://localhost:*`, and
-  `sprite api *`. The `sprite exec *` blanket allow was *not* added,
-  so the new hook is fail-closed: a hook error prompts instead of
-  silently allowing.
-- No tests / lint in this repo; quality gates skipped.
+- Promoted the repository from a Claude-only marketplace to a **multi-agent plugin collection** supporting both Claude Code and Gemini CLI.
+- Added `gemini-extension.json` manifests to `spindev-core`, `spindev-devenv`, and `spindev-deploy` plugin directories.
+- Refactored `plugins/spindev-core/hooks/hooks.json` into a **polyglot hook registration** supporting both Claude's `PreToolUse` and Gemini's `BeforeTool` events using `${extensionPath}` for Gemini script resolution.
+- Created **TOML command wrappers** for all user-facing slash commands (`/end-session`, `/init-project`, `/pr-prepass`, `/review-plan`, `/create-gh-token`, `/my-status-line`) to enable native Gemini CLI slash command support.
+- Established a root-level **`GEMINI.md`** for persistent agent context and installation instructions.
+- Updated `CLAUDE.md` and root `README.md` to reflect the dual-agent support and unified project structure.
+- Verified that existing `SKILL.md` (skills) and `.md` (subagents) are natively compatible with both agents due to shared standards (YAML frontmatter + Markdown).
 
 Future-you notes:
-- If you touch `cd-strip-permission.js`, pipe-test every branch
-  before shipping. There are now four: heredoc git commit, sprite
-  exec, cd-prefix, passthrough. Payload shape is
-  `{"tool_name":"Bash","tool_input":{"command":"..."}}`.
-- `Bash(sprite exec *)` is deliberately absent from the allow list.
-  Do not add it back without also removing the sprite-exec handler
-  in the hook — otherwise you re-introduce fail-open semantics.
-- New memory entry: `feedback_fail_closed_permission_hooks.md`.
+- The repo is now a valid Gemini CLI extension. Install via `gemini extensions install ./plugins/<plugin>`.
+- `hooks/hooks.json` is shared. If you add a new hook, register it in both the `hooks` (Claude) and root (Gemini) sections of the JSON.
+- Command wrappers must be maintained in both `.md` and `.toml` formats in the `commands/` directory.
+- `SKILL.md` files remain the single source of truth for procedural knowledge.
 
 ## 2026-04-16 — main (docs: per-skill READMEs + root overview)
 

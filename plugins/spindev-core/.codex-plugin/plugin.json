@@ -1,0 +1,39 @@
+{
+  "name": "spindev-core",
+  "version": "0.2.0",
+  "description": "Core spinlockdevelopment skills for Codex project and session lifecycle: end-session wrap-up, init-project baseline, review-plan pre-implementation hardening, the gh GitHub-ops playbook, and the pr-prepass subagent prompt.",
+  "author": {
+    "name": "Chris",
+    "url": "https://github.com/spinlockdevelopment"
+  },
+  "homepage": "https://github.com/spinlockdevelopment/dev-setup#spindev-core",
+  "repository": "https://github.com/spinlockdevelopment/dev-setup",
+  "keywords": [
+    "session-management",
+    "project-bringup",
+    "plan-review",
+    "workflow",
+    "pr-workflow",
+    "pr-prepass",
+    "github"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Spindev Core",
+    "shortDescription": "Project lifecycle and session workflow skills.",
+    "longDescription": "Core spinlockdevelopment skills for project bringup, session wrap-up, plan review, GitHub operations, and PR prepass review workflows. Use this plugin on most projects.",
+    "developerName": "Spinlock Development",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/spinlockdevelopment/dev-setup",
+    "defaultPrompt": [
+      "Initialize this project to the spindev baseline.",
+      "Review and harden this implementation plan.",
+      "Wrap up this session and prepare the PR."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

@@ -1,0 +1,2 @@
+description = "Install or verify the spindev status line"
+prompt = "Invoke the `my-status-line` skill to install or verify the status line."

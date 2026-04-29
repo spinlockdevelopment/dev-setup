@@ -1,0 +1,39 @@
+{
+  "name": "spindev-deploy",
+  "version": "0.2.0",
+  "description": "Deployment-target reference skills for spinlockdevelopment: fly.io provisioning and operations plus sprites.dev usage guardrails.",
+  "author": {
+    "name": "Chris",
+    "url": "https://github.com/spinlockdevelopment"
+  },
+  "homepage": "https://github.com/spinlockdevelopment/dev-setup#spindev-deploy",
+  "repository": "https://github.com/spinlockdevelopment/dev-setup",
+  "keywords": [
+    "deployment",
+    "sprites-dev",
+    "fly-io",
+    "flyctl",
+    "windows",
+    "git-bash",
+    "guardrails"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Spindev Deploy",
+    "shortDescription": "Deployment platform reference skills.",
+    "longDescription": "Deployment-target reference skills for fly.io application provisioning and operations, plus sprites.dev CLI and API usage rules for Windows and Git Bash environments.",
+    "developerName": "Spinlock Development",
+    "category": "Deployment",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/spinlockdevelopment/dev-setup",
+    "defaultPrompt": [
+      "Prepare this app for fly.io deployment.",
+      "Debug this fly.io deployment failure.",
+      "Use sprites.dev correctly from Git Bash."
+    ],
+    "brandColor": "#7C3AED"
+  }
+}

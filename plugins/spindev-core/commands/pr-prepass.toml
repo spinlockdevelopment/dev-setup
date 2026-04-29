@@ -1,0 +1,2 @@
+description = "Run a local mirror of the repo's PR auto-review CI locally before push"
+prompt = "Invoke the `pr-prepass` subagent to mirror the CI locally — gitleaks, shellcheck, script conventions, plus a PII/secrets/structural pass over the diff."

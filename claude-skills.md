@@ -5,8 +5,11 @@ a skill is added, removed, or materially changed.
 
 ## How skills ship
 
-This repo is a Claude Code **plugin marketplace**. Skills are grouped into
-three plugins published from `.claude-plugin/marketplace.json`:
+This repo publishes the same skills through a Codex CLI marketplace,
+Claude Code marketplace, and Gemini CLI extension collection. Skills are
+grouped into three plugins published from
+`.agents/plugins/marketplace.json`, `.claude-plugin/marketplace.json`,
+and each plugin's `gemini-extension.json`:
 
 | Plugin | Skills | Subagents | Hooks |
 |---|---|---|---|
@@ -14,8 +17,8 @@ three plugins published from `.claude-plugin/marketplace.json`:
 | `spindev-devenv` | `create-gh-token`, `hardened-shell`, `my-status-line`, `ubuntu-debloat` | — | — |
 | `spindev-deploy` | `flyio`, `sprites-dev` | — | sprite-guard, fly-guard (PreToolUse Bash) |
 
-Consumer projects enable whichever plugins they need from
-`.claude/settings.json`. See [`README.md`](./README.md) for the snippet.
+Consumer projects enable whichever plugins they need for their target
+agent. See [`README.md`](./README.md) for install details.
 
 ## Plugins
 
@@ -23,6 +26,7 @@ Consumer projects enable whichever plugins they need from
 
 Path: `plugins/spindev-core/`
 Manifest: [`.claude-plugin/plugin.json`](./plugins/spindev-core/.claude-plugin/plugin.json)
+Codex manifest: [`.codex-plugin/plugin.json`](./plugins/spindev-core/.codex-plugin/plugin.json)
 Slash commands: `/end-session`, `/init-project`, `/pr-prepass`, `/review-plan`
 Subagents: `pr-prepass`
 Hooks: `gh-workflow` (non-blocking PreToolUse advisory on `gh`/`git push` patterns)
@@ -126,6 +130,7 @@ natively.
 
 Path: `plugins/spindev-devenv/`
 Manifest: [`.claude-plugin/plugin.json`](./plugins/spindev-devenv/.claude-plugin/plugin.json)
+Codex manifest: [`.codex-plugin/plugin.json`](./plugins/spindev-devenv/.codex-plugin/plugin.json)
 Slash commands: `/create-gh-token`
 
 Developer-machine setup + sandboxed execution. Enable on boxes where you
@@ -224,6 +229,7 @@ Targets: any host with Docker CE. Latest LTS / public-GA only.
 
 Path: `plugins/spindev-deploy/`
 Manifest: [`.claude-plugin/plugin.json`](./plugins/spindev-deploy/.claude-plugin/plugin.json)
+Codex manifest: [`.codex-plugin/plugin.json`](./plugins/spindev-deploy/.codex-plugin/plugin.json)
 Hooks: `sprite-guard`, `fly-guard` (PreToolUse Bash)
 
 Deployment-target reference skills. Enable only on projects that

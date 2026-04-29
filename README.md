@@ -1,71 +1,41 @@
-# spinlockdevelopment — Claude Code plugin marketplace
+# spindev — Multi-agent plugin collection
 
-Personal Claude Code plugin marketplace. Ships three plugins grouping
-skills + slash commands for project lifecycle, developer-environment
-setup, and deployment-target references.
+Personal plugin marketplace and extension collection for **Codex CLI**, **Claude Code**, and **Gemini CLI**. Ships three plugins grouping skills, command wrappers, hooks, and companion scripts for project lifecycle, developer-environment setup, and deployment-target references.
 
-Skills were previously consumed from this repo by symlinking individual
-directories into `~/.claude/skills/`. That model broke on Claude Code
-Web (sandboxes start fresh, can't see user-level symlinks), so the repo
-was refactored into a marketplace. Each project now opts in by listing
-this marketplace and the plugins it wants in its own
-`.claude/settings.json`.
+## Installation
 
-## What's in here
+### Codex CLI (Marketplace)
+This checkout is a Codex marketplace rooted at
+[`.agents/plugins/marketplace.json`](./.agents/plugins/marketplace.json).
+Add it from a consuming project or from this checkout:
 
-| Path | Purpose |
-|---|---|
-| [`.claude-plugin/marketplace.json`](./.claude-plugin/marketplace.json) | Marketplace registry — lists all plugins and how to find them. |
-| [`plugins/spindev-core/`](./plugins/spindev-core/) | Session / project-lifecycle primitives. Slash commands: `/end-session`, `/init-project`, `/pr-prepass`, `/review-plan`. Subagent: `pr-prepass`. Hook: `gh-workflow` advisory. |
-| [`plugins/spindev-devenv/`](./plugins/spindev-devenv/) | Developer-machine setup (`ubuntu-debloat`), sandbox execution (`hardened-shell` + `hshell` CLI), and per-project GitHub PAT wiring (`create-gh-token`). |
-| [`plugins/spindev-deploy/`](./plugins/spindev-deploy/) | Deployment-target reference skills (`flyio`, `sprites-dev`) with `sprite-guard` + `fly-guard` PreToolUse hooks. |
-| [`claude-skills.md`](./claude-skills.md) | Authoritative index of every skill across all plugins. |
-| [`CLAUDE.md`](./CLAUDE.md) | Claude-facing guidance for working inside this repo. |
-| [`SESSION-SUMMARIES.md`](./SESSION-SUMMARIES.md) | Append-only log of session outcomes. |
+```bash
+codex plugin marketplace add /path/to/dev-setup
+```
 
-## Plugin catalog
+The marketplace publishes three local plugins:
 
-### `spindev-core`
+```text
+./plugins/spindev-core
+./plugins/spindev-devenv
+./plugins/spindev-deploy
+```
 
-Session / project-lifecycle primitives — enable on every project.
+Each plugin has a Codex manifest at
+`plugins/<plugin>/.codex-plugin/plugin.json` and points Codex at the
+shared `skills/` directory.
 
-- `end-session` — wraps up a session before `/clear`: syncs docs/memory/TODOs, runs quality gates (auto-dispatches `pr-prepass` when the repo has a `pr-review.yml` CI workflow), opens a PR with auto-merge when work is complete
-- `gh` — playbook for GitHub org/repo provisioning, fine-grained PAT setup, branch protection, and rulesets. Resolves the "Resource not accessible by personal access token" 403 family.
-- `init-project` — brings a repo up to baseline: git + main, bringup/protected breadcrumb, minimal `CLAUDE.md`/`README.md`, canonical PR-workflow rules block
-- `pr-prepass` (subagent) — local mirror of the PR auto-review CI: gitleaks + shellcheck + script-conventions + a Claude PII/secrets/structural pass over the current branch's diff. Reports findings; never pushes.
-- `review-plan` — pre-implementation hardening for superpowers plans: cross-model adversarial review + checkpoint-block injection
+### Gemini CLI (Extensions)
+Install the plugins as Gemini CLI extensions directly from the local checkout:
 
-Hooks: `gh-workflow` — non-blocking PreToolUse advisory that warns on `gh repo create` without `--template`, `gh pr merge` without `--squash`, and direct pushes to `main`/`staging`/`prod`.
+```bash
+gemini extensions install ./plugins/spindev-core
+gemini extensions install ./plugins/spindev-devenv
+gemini extensions install ./plugins/spindev-deploy
+```
 
-Slash commands: `/end-session`, `/init-project`, `/pr-prepass`, `/review-plan`.
-
-### `spindev-devenv`
-
-Developer-machine setup + sandboxed agent execution. Enable on boxes
-where you actually bring up dev environments or run banshee-mode
-agents. Skip on Claude Code Web sandboxes.
-
-- `create-gh-token` — mint a fine-grained GitHub PAT tailored to one project (4 short questions → concise PAT-creation checklist → script that validates the pasted token and rewrites the project's HTTPS git remote so pushes work without prompting). Token lives only in `.git/config`.
-- `hardened-shell` — the `hshell` Docker sandbox launcher (banshee-mode Claude runs in a read-only-host / writable-pwd jail with credential masking). Build the image + install the launcher per the skill's [`USAGE.md`](./plugins/spindev-devenv/skills/hardened-shell/USAGE.md).
-- `my-status-line` — installs a compact Claude Code status line (`foldername | branch | sandbox | ctx Nk (P%) | Model`) into `~/.claude/settings.json`. Slash command: `/my-status-line`.
-- `ubuntu-debloat` — idempotent fresh-Ubuntu setup: purge games/office/Firefox/snapd, install Chrome, Brave, Docker CE, mise-managed Python/Node/Go/JDK, Android Studio, VS Code. Linux only.
-
-Slash commands: `/create-gh-token`.
-
-### `spindev-deploy`
-
-Deployment-target reference skills — enable on projects that deploy to
-the matching platform.
-
-- `flyio` — playbook for fly.io: install flyctl, deploy-token auth, app + single-attach volume creation, the `fly.toml` shape for an always-on long-poller, secrets, ssh-console access, token rotation. Documents real gotchas (`VAULT_*` env stripping, missing `/usr/sbin` on the Dockerfile PATH, app-name format, shared-cpu-1x throttle).
-- `sprites-dev` — correct-usage rules for the `sprite` CLI and sprites.dev API on Windows / Git Bash. Avoids path mangling, flag-ordering bugs, and large-file upload failures. Every rule traces to a real failure.
-
-Hooks: `sprite-guard` (blocks `sprite exec` without `bash -c` wrapping, `sprite api` flag-ordering bugs, Git-Bash-specific path mangling), `fly-guard` (blocks destructive `fly` commands without `--yes`, `fly secrets set VAULT_*`, malformed app names; advisory on `fly deploy` without `--remote-only`).
-
-## Install in your project
-
-Add the marketplace and turn on the plugins you want in your
-project's `.claude/settings.json`:
+### Claude Code (Marketplace)
+Add the marketplace and turn on the plugins you want in your project's `.claude/settings.json`:
 
 ```json
 {
@@ -84,6 +54,38 @@ project's `.claude/settings.json`:
   }
 }
 ```
+
+## Plugin catalog
+
+### `spindev-core`
+Session / project-lifecycle primitives — enable on every project.
+- `end-session` — syncs docs/memory, runs quality gates, creates PR with auto-merge
+- `gh` — playbook for GitHub org/repo provisioning and PAT setup
+- `init-project` — brings a repo up to baseline conventions
+- `pr-prepass` (subagent) — local mirror of the PR auto-review CI
+- `review-plan` — pre-implementation hardening for plans
+
+Slash commands: `/end-session`, `/init-project`, `/pr-prepass`, `/review-plan`.
+
+### `spindev-devenv`
+Developer-machine setup + sandboxed agent execution.
+- `create-gh-token` — mint and wire a project-specific GitHub PAT
+- `hardened-shell` — the `hshell` Docker sandbox launcher
+- `my-status-line` — compact status line for the terminal
+- `ubuntu-debloat` — idempotent fresh-Ubuntu setup
+
+Slash commands: `/create-gh-token`.
+
+### `spindev-deploy`
+Deployment-target reference skills.
+- `flyio` — playbook for fly.io deployments
+- `sprites-dev` — correct-usage rules for sprites.dev
+
+## Project Structure
+Skills and subagents are shared between Codex, Claude, and Gemini. Each
+plugin contains agent-specific manifests (`.codex-plugin/plugin.json`,
+`.claude-plugin/plugin.json`, `gemini-extension.json`) and command
+wrappers where the target agent supports them (`.md`, `.toml`).
 
 Keep only the plugins the project actually needs. Most projects want
 `spindev-core`; add `spindev-devenv` on developer boxes and
@@ -125,7 +127,7 @@ directly). To test the marketplace wiring end-to-end:
 /plugin install spindev-core@spinlockdevelopment
 ```
 
-Validate manifests before pushing:
+Validate Claude manifests before pushing:
 
 ```shell
 claude plugin validate .
@@ -149,9 +151,9 @@ back here. To actually update a skill:
 3. Commit. In bringup mode that's a direct commit to `main`; in protected mode, push a feature branch + PR.
 4. Push. Consumer projects pick up the change on their next `/plugin marketplace update`.
 
-This flow applies to Claude too: skills in this repo tell Claude to
-"self-heal" or "update in place" when they spot drift. Those edits
-belong here, not in the cache.
+This flow applies to agent self-improvement too: skills in this repo may
+tell Codex, Claude, or Gemini to "self-heal" or "update in place" when
+they spot drift. Those edits belong here, not in an installed cache.
 
 ## Conventions for skills in this repo
 
@@ -186,6 +188,8 @@ belong here, not in the cache.
 6. Add an entry to [`claude-skills.md`](./claude-skills.md) under the
    right plugin section.
 7. Update the plugin catalog in this README.
+8. If plugin-level metadata changed, update the matching Codex
+   manifest in `plugins/<plugin>/.codex-plugin/plugin.json`.
 
 ## Adding a new slash command
 

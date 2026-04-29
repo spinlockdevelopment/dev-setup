@@ -11,5 +11,16 @@
         ]
       }
     ]
-  }
+  },
+  "BeforeTool": [
+    {
+      "matcher": "Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "${extensionPath}/hooks/scripts/gh-workflow.sh"
+        }
+      ]
+    }
+  ]
 }

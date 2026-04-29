@@ -1,0 +1,2 @@
+description = "Bring this project up to baseline for working with Claude and Gemini"
+prompt = "Invoke the `init-project` skill to bring this project up to baseline — git init (if needed), mode breadcrumb, minimal CLAUDE.md / README.md, PR-workflow rules block, and dependency skills."

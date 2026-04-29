@@ -1,0 +1,2 @@
+description = "Mint a fine-grained GitHub PAT tailored to one project and wire it into the project's git remote"
+prompt = "Invoke the `create-gh-token` skill to set up a GitHub token for this project."

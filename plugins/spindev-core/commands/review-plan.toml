@@ -1,0 +1,2 @@
+description = "Pre-implementation hardening pass on a superpowers plan"
+prompt = "Invoke the `review-plan` skill to run a pre-implementation hardening pass — cross-model review plus checkpoint-block injection."

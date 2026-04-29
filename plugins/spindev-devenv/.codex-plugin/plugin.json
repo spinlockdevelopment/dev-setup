@@ -1,0 +1,41 @@
+{
+  "name": "spindev-devenv",
+  "version": "0.1.0",
+  "description": "Developer-machine setup for spinlockdevelopment: hardened-shell Docker sandbox, my-status-line, ubuntu-debloat, and create-gh-token.",
+  "author": {
+    "name": "Chris",
+    "url": "https://github.com/spinlockdevelopment"
+  },
+  "homepage": "https://github.com/spinlockdevelopment/dev-setup#spindev-devenv",
+  "repository": "https://github.com/spinlockdevelopment/dev-setup",
+  "keywords": [
+    "ubuntu",
+    "docker",
+    "sandbox",
+    "dev-environment",
+    "debloat",
+    "mise",
+    "github",
+    "pat",
+    "git-credentials"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Spindev DevEnv",
+    "shortDescription": "Developer box setup and sandboxing skills.",
+    "longDescription": "Developer-machine setup and sandboxing skills for Ubuntu bringup, hardened Docker shells, Codex and Claude-friendly status line tooling, and project-scoped GitHub token wiring.",
+    "developerName": "Spinlock Development",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/spinlockdevelopment/dev-setup",
+    "defaultPrompt": [
+      "Set up this Ubuntu developer machine.",
+      "Install and verify the hardened shell.",
+      "Create a project-scoped GitHub token."
+    ],
+    "brandColor": "#059669"
+  }
+}
