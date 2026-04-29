@@ -12,9 +12,9 @@
     {
       "name": "spindev-core",
       "source": "./plugins/spindev-core",
-      "description": "Session / project-lifecycle primitives: /end-session, /init-project, /review-plan.",
+      "description": "Session / project-lifecycle primitives: /end-session, /init-project, /pr-prepass, /review-plan, plus the gh skill and the pr-prepass subagent. Includes a non-blocking gh-workflow PreToolUse hook for advisory checks on gh + git push.",
       "category": "workflow",
-      "keywords": ["session-management", "project-bringup", "plan-review", "pr-workflow"]
+      "keywords": ["session-management", "project-bringup", "plan-review", "pr-workflow", "pr-prepass"]
     },
     {
       "name": "spindev-devenv",
@@ -26,9 +26,9 @@
     {
       "name": "spindev-deploy",
       "source": "./plugins/spindev-deploy",
-      "description": "Deployment-platform reference skills (currently sprites-dev for Windows/Git Bash).",
+      "description": "Deployment-platform reference skills (flyio, sprites-dev) with PreToolUse hooks (sprite-guard, fly-guard) that catch documented failure modes at execution time.",
       "category": "deployment",
-      "keywords": ["deployment", "sprites-dev", "fly-io", "windows"]
+      "keywords": ["deployment", "sprites-dev", "fly-io", "windows", "hooks"]
     }
   ]
 }

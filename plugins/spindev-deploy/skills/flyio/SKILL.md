@@ -174,6 +174,24 @@ AFTER confirming the new one works.
 - `scripts/deploy.sh <app>` — wrapper around `fly deploy` that uses
   a stored deploy token and the local Dockerfile.
 
+## Backstop hook
+
+This plugin also ships a `PreToolUse` hook (`fly-guard.sh`) that
+catches the worst gotchas at execution time:
+
+- **Blocks** `fly apps|volumes|machines destroy` and `fly tokens revoke`
+  without explicit `--yes`/`-y`.
+- **Blocks** `fly secrets set VAULT_*=...` (silently stripped at
+  runtime — see gotchas above).
+- **Blocks** `fly apps create <name>` when the name has uppercase,
+  dots, or underscores.
+- **Advises** (does not block) `fly deploy` without `--remote-only`.
+
+The hook is a safety net, not a substitute for reading the gotchas.
+When you fix or extend this skill, also update the matchers in
+`plugins/spindev-deploy/hooks/scripts/fly-guard.sh` so the hook
+stays in sync.
+
 ## Self-healing
 
 Pinned versions (flyctl, base image SHA) self-heal when the

@@ -16,9 +16,9 @@ this marketplace and the plugins it wants in its own
 | Path | Purpose |
 |---|---|
 | [`.claude-plugin/marketplace.json`](./.claude-plugin/marketplace.json) | Marketplace registry — lists all plugins and how to find them. |
-| [`plugins/spindev-core/`](./plugins/spindev-core/) | Session / project-lifecycle primitives. Slash commands: `/end-session`, `/init-project`, `/review-plan`. |
+| [`plugins/spindev-core/`](./plugins/spindev-core/) | Session / project-lifecycle primitives. Slash commands: `/end-session`, `/init-project`, `/pr-prepass`, `/review-plan`. Subagent: `pr-prepass`. Hook: `gh-workflow` advisory. |
 | [`plugins/spindev-devenv/`](./plugins/spindev-devenv/) | Developer-machine setup (`ubuntu-debloat`), sandbox execution (`hardened-shell` + `hshell` CLI), and per-project GitHub PAT wiring (`create-gh-token`). |
-| [`plugins/spindev-deploy/`](./plugins/spindev-deploy/) | Deployment-target reference skills (currently `sprites-dev`). |
+| [`plugins/spindev-deploy/`](./plugins/spindev-deploy/) | Deployment-target reference skills (`flyio`, `sprites-dev`) with `sprite-guard` + `fly-guard` PreToolUse hooks. |
 | [`claude-skills.md`](./claude-skills.md) | Authoritative index of every skill across all plugins. |
 | [`CLAUDE.md`](./CLAUDE.md) | Claude-facing guidance for working inside this repo. |
 | [`SESSION-SUMMARIES.md`](./SESSION-SUMMARIES.md) | Append-only log of session outcomes. |
@@ -29,11 +29,15 @@ this marketplace and the plugins it wants in its own
 
 Session / project-lifecycle primitives — enable on every project.
 
-- `end-session` — wraps up a session before `/clear`: syncs docs/memory/TODOs, runs quality gates, opens a PR with auto-merge when work is complete
+- `end-session` — wraps up a session before `/clear`: syncs docs/memory/TODOs, runs quality gates (auto-dispatches `pr-prepass` when the repo has a `pr-review.yml` CI workflow), opens a PR with auto-merge when work is complete
+- `gh` — playbook for GitHub org/repo provisioning, fine-grained PAT setup, branch protection, and rulesets. Resolves the "Resource not accessible by personal access token" 403 family.
 - `init-project` — brings a repo up to baseline: git + main, bringup/protected breadcrumb, minimal `CLAUDE.md`/`README.md`, canonical PR-workflow rules block
+- `pr-prepass` (subagent) — local mirror of the PR auto-review CI: gitleaks + shellcheck + script-conventions + a Claude PII/secrets/structural pass over the current branch's diff. Reports findings; never pushes.
 - `review-plan` — pre-implementation hardening for superpowers plans: cross-model adversarial review + checkpoint-block injection
 
-Slash commands: `/end-session`, `/init-project`, `/review-plan`.
+Hooks: `gh-workflow` — non-blocking PreToolUse advisory that warns on `gh repo create` without `--template`, `gh pr merge` without `--squash`, and direct pushes to `main`/`staging`/`prod`.
+
+Slash commands: `/end-session`, `/init-project`, `/pr-prepass`, `/review-plan`.
 
 ### `spindev-devenv`
 
@@ -53,7 +57,10 @@ Slash commands: `/create-gh-token`.
 Deployment-target reference skills — enable on projects that deploy to
 the matching platform.
 
+- `flyio` — playbook for fly.io: install flyctl, deploy-token auth, app + single-attach volume creation, the `fly.toml` shape for an always-on long-poller, secrets, ssh-console access, token rotation. Documents real gotchas (`VAULT_*` env stripping, missing `/usr/sbin` on the Dockerfile PATH, app-name format, shared-cpu-1x throttle).
 - `sprites-dev` — correct-usage rules for the `sprite` CLI and sprites.dev API on Windows / Git Bash. Avoids path mangling, flag-ordering bugs, and large-file upload failures. Every rule traces to a real failure.
+
+Hooks: `sprite-guard` (blocks `sprite exec` without `bash -c` wrapping, `sprite api` flag-ordering bugs, Git-Bash-specific path mangling), `fly-guard` (blocks destructive `fly` commands without `--yes`, `fly secrets set VAULT_*`, malformed app names; advisory on `fly deploy` without `--remote-only`).
 
 ## Install in your project
 

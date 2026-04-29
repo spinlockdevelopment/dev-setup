@@ -1,7 +1,7 @@
 {
   "name": "spindev-core",
-  "version": "0.1.0",
-  "description": "Core spinlockdevelopment skills for Claude Code project and session lifecycle — end-session wrap-up, init-project baseline, and review-plan pre-implementation hardening. Ships the /end-session, /init-project, and /review-plan slash commands.",
+  "version": "0.2.0",
+  "description": "Core spinlockdevelopment skills for Claude Code project and session lifecycle — end-session wrap-up, init-project baseline, review-plan pre-implementation hardening, the gh GitHub-ops playbook, and the pr-prepass subagent (mirrors a repo's PR auto-review CI locally before push). Ships /end-session, /init-project, /pr-prepass, and /review-plan slash commands plus a non-blocking gh-workflow PreToolUse hook.",
   "author": {
     "name": "Chris",
     "url": "https://github.com/spinlockdevelopment"
@@ -13,6 +13,9 @@
     "project-bringup",
     "plan-review",
     "workflow",
-    "pr-workflow"
+    "pr-workflow",
+    "pr-prepass",
+    "subagent",
+    "hooks"
   ]
 }

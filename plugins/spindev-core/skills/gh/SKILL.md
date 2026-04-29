@@ -115,6 +115,31 @@ surfaces which permission bits are granted.
   endpoints and prints a capability report. Safe — no destructive
   ops.
 
+## Backstop hook (advisory, two-week review)
+
+This plugin ships a non-blocking `PreToolUse` hook
+(`gh-workflow.sh`) that prints stderr advisories when:
+
+- `gh repo create` runs without `--template`/`--source`/`--clone`.
+- `gh pr merge` runs without an explicit strategy (project standard
+  is `--squash`).
+- `git push` targets `main`/`master`/`staging`/`prod`.
+- `git push --force` (or `--force-with-lease`) targets a protected
+  branch.
+
+**Status: trial, introduced 2026-04-29.** The hook never blocks —
+it only surfaces a heads-up so we can observe whether these
+patterns happen often enough to matter, and whether the advisories
+are useful or noise. **Re-evaluate on or before 2026-05-13.** If
+they're noise, remove the hook entry from
+`plugins/spindev-core/hooks/hooks.json`. If they're useful, decide
+whether any deserve to upgrade to blocking enforcement.
+
+When the rules in this skill or the project's PR-workflow
+preferences change, also update the matchers in
+`plugins/spindev-core/hooks/scripts/gh-workflow.sh` so the hook
+stays in sync.
+
 ## Self-healing
 
 If this skill's scripts reference paths or permission names that

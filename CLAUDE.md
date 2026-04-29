@@ -36,12 +36,17 @@ plugins/
     .claude-plugin/plugin.json
     commands/<name>.md              ← slash-command wrappers
     skills/<name>/SKILL.md          ← skills
+    agents/<name>.md                ← subagents (e.g. pr-prepass)
+    hooks/hooks.json                ← hook registrations
+    hooks/scripts/<name>.sh         ← hook implementation scripts
   spindev-devenv/
     .claude-plugin/plugin.json
     skills/<name>/
   spindev-deploy/
     .claude-plugin/plugin.json
     skills/<name>/
+    hooks/hooks.json
+    hooks/scripts/<name>.sh
 ```
 
 Rules:
@@ -50,6 +55,17 @@ Rules:
   deeper nesting.
 - Slash commands live at `plugins/<plugin>/commands/<name>.md`, in the
   same plugin as the skill they wrap.
+- Subagents live at `plugins/<plugin>/agents/<name>.md` with YAML
+  frontmatter (`name`, `description`). Auto-discovered when the
+  plugin is enabled. Never reference plugin-cache paths in the agent
+  body — let the agent discover what it needs at runtime.
+- Hooks register in `plugins/<plugin>/hooks/hooks.json` and reference
+  scripts via `${CLAUDE_PLUGIN_ROOT}/hooks/scripts/<name>.sh`. Scripts
+  are bash, idempotent, fast-fail on non-matching inputs (parse stdin
+  JSON, no-op if `tool_name` or command pattern doesn't match), and
+  exit `0` to allow / `2` to block (with stderr message). Pair every
+  hook with a "Backstop hook" section in the partner skill's SKILL.md
+  so the rules and the matchers stay in sync.
 - Every plugin in `plugins/` is listed in
   `.claude-plugin/marketplace.json`. Every listed plugin has a
   `.claude-plugin/plugin.json`.
@@ -102,6 +118,36 @@ Rules:
 Drop `plugins/<plugin>/commands/<name>.md` — thin prompt file with
 `description` frontmatter, delegating to the same-named skill. Commands
 ship in the same plugin as the skill they wrap.
+
+## Adding a subagent
+
+1. Create `plugins/<plugin>/agents/<name>.md` with frontmatter
+   (`name`, `description`). Keep the description specific enough that
+   Claude auto-dispatches reliably.
+2. The body is the agent's prompt. It runs in its own context window;
+   write it as if the dispatcher just walked into the room.
+3. If you also want a manual entry point, add a same-named slash
+   command at `plugins/<plugin>/commands/<name>.md` that says
+   "dispatch the `<name>` subagent".
+4. Add the agent to [`claude-skills.md`](./claude-skills.md) and the
+   plugin section in the root [`README.md`](./README.md).
+
+## Adding a hook
+
+1. Pick the right plugin (the one whose skill the hook backstops).
+2. Write the script at `plugins/<plugin>/hooks/scripts/<name>.sh`.
+   - `set -euo pipefail`, parse stdin JSON with `jq`, fast-fail when
+     `tool_name` or the command pattern doesn't match (no-op exit 0).
+   - Block: print to stderr, `exit 2`. Allow with advisory: print to
+     stderr, `exit 0`. Silent allow: `exit 0` with no stderr.
+3. Register it in `plugins/<plugin>/hooks/hooks.json` with
+   `"command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/<name>.sh"`.
+4. `chmod +x` the script.
+5. Add a self-test loop to the same commit (table of cmd → expected
+   exit → expected warning) so the matchers stay regression-tested.
+6. Add a "Backstop hook" section to the partner skill's SKILL.md
+   listing what the hook enforces, and a reminder to update the
+   matchers when the rules change.
 
 ## Adding a new plugin
 

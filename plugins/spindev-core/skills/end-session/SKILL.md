@@ -133,6 +133,8 @@ Run locally, even if CI also runs them:
 
 **Discovery:** Do not rely solely on `CLAUDE.md` for the list of commands. Also check the CI workflow files (`.github/workflows/*.yml`, `.gitlab-ci.yml`, `Makefile`, `package.json` scripts) for quality gates that may not be documented. If you find a gate in CI that is not in `CLAUDE.md`, run it *and* add it to the Testing section of `CLAUDE.md` so future sessions do not repeat this gap.
 
+**Auto-review mirror — `pr-prepass`.** If `.github/workflows/pr-review.yml` exists, dispatch the `pr-prepass` subagent (ships with this plugin) to mirror that CI locally — gitleaks, shellcheck, script conventions, plus a Claude PII/secrets/structural pass over the diff. It returns a structured report. Surface findings to the user; fix what's worth fixing before the push. If the workflow file does not exist, skip this step silently — it does not apply.
+
 If any gate fails, stop and report. Do not proceed to review offers or PR.
 
 ### 12. Review skill offers (threshold-gated)

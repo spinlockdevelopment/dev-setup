@@ -378,3 +378,74 @@ Future-you notes:
 - `install.sh` runs `chmod +x` on the sh but not the py. Not a
   problem today (the sh execs `python <path>`) but worth remembering
   if the py is ever intended to be invoked directly.
+
+## 2026-04-29 — main (plugin enhancements: subagent + hooks)
+
+Took a pass at expanding the marketplace beyond skills/commands to
+also ship a subagent and several PreToolUse hooks. Plugin layout
+gained two new directory conventions: `agents/` and `hooks/`.
+
+- **`pr-prepass` subagent lifted into `spindev-core`** from
+  `agent.smith/.claude/agents/pr-prepass.md`. Mirrors the repo's PR
+  auto-review CI locally before push (gitleaks + shellcheck +
+  script-conventions + a Claude PII/secrets/structural pass over the
+  diff). Reads `.github/workflows/pr-review.yml` at runtime so it's
+  portable across repos with similar CI. New `/pr-prepass` slash
+  command. `/end-session` step 11 now auto-dispatches it when
+  `pr-review.yml` exists.
+- **`sprite-guard` PreToolUse hook in `spindev-deploy`** — blocks
+  `sprite exec --` without `bash -c` wrapping, missing
+  `MSYS_NO_PATHCONV=1` on Git Bash, curl-flags-before-path on
+  `sprite api`, and `--dir` absolute paths on Git Bash. 11/11
+  self-tests pass. Backstops the `sprites-dev` skill's rules at
+  execution time.
+- **`fly-guard` PreToolUse hook in `spindev-deploy`** — blocks
+  destructive `fly apps/volumes/machines destroy` and
+  `fly tokens revoke` without `--yes`, `fly secrets set VAULT_*=...`
+  (silently stripped at runtime — see flyio gotchas), and malformed
+  `fly apps create` names; advises (does not block) `fly deploy`
+  without `--remote-only`. 14/14 self-tests pass.
+- **`gh-workflow` advisory hook in `spindev-core`** — non-blocking
+  stderr advisories on `gh repo create` without `--template`,
+  `gh pr merge` without `--squash`, `git push` to protected
+  branches, and force-push to protected branches. Documented as a
+  trial; gh skill says re-evaluate on or before 2026-05-13. 15/15
+  self-tests pass.
+- **Catalog updates.** `gh` and `flyio` skills were never listed in
+  `claude-skills.md` or the root `README.md` plugin catalog. Fixed.
+  Each skill that gained a hook also got a "Backstop hook" section
+  in its SKILL.md so the matchers and the rules stay in sync.
+- **Manifest churn.** `spindev-core` and `spindev-deploy` bumped
+  0.1.0 → 0.2.0; `marketplace.json` descriptions updated; `claude
+  plugin validate .` passes; all hook scripts pass `shellcheck -S
+  warning`.
+
+Decisions deferred (see project memory `project_compound_engineering_eval.md`):
+
+- The planned `plan-reviewer` subagent is paused on a real-project
+  trial of `EveryInc/compound-engineering-plugin`. CE ships
+  `ce-doc-review` with `ce-adversarial-document-reviewer`,
+  `ce-scope-guardian-reviewer`, and `ce-feasibility-reviewer` —
+  covers ~70% of `/review-plan`. The trial decides whether to adopt
+  CE wholesale (and trim spindev-core to the CE deltas) or build
+  plan-reviewer as originally scoped.
+
+Future-you notes:
+
+- **CLAUDE.md gained two new sections:** "Adding a subagent" and
+  "Adding a hook". The "Plugin layout" tree now includes `agents/`
+  and `hooks/` subdirs and their rules. Use these as the template
+  next time.
+- **Hook self-test pattern.** Each new hook script was paired with
+  a tiny test harness (table of `cmd → expected exit → expected
+  warning`) executed inline in the same Bash call. Keep this
+  pattern when adding hooks — easier to regression-test rules than
+  to debug a wrongly-blocking advisory.
+- **`gh-workflow` review window.** If the trial expires (2026-05-13)
+  without follow-up, the noise question wasn't asked. Either delete
+  the hook entry from `plugins/spindev-core/hooks/hooks.json` or
+  decide rules to upgrade to blocking. The skill file documents this
+  explicitly.
+- **No `pr-review.yml` in this repo.** The new auto-dispatch in
+  `/end-session` is a no-op here. If we ever add a PR-review CI to
+  dev-setup itself, `pr-prepass` will pick it up automatically.

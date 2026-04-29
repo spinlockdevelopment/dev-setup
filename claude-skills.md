@@ -8,11 +8,11 @@ a skill is added, removed, or materially changed.
 This repo is a Claude Code **plugin marketplace**. Skills are grouped into
 three plugins published from `.claude-plugin/marketplace.json`:
 
-| Plugin | Skills |
-|---|---|
-| `spindev-core` | `end-session`, `init-project`, `review-plan` |
-| `spindev-devenv` | `create-gh-token`, `hardened-shell`, `my-status-line`, `ubuntu-debloat` |
-| `spindev-deploy` | `sprites-dev` |
+| Plugin | Skills | Subagents | Hooks |
+|---|---|---|---|
+| `spindev-core` | `end-session`, `gh`, `init-project`, `review-plan` | `pr-prepass` | gh-workflow advisory (PreToolUse Bash) |
+| `spindev-devenv` | `create-gh-token`, `hardened-shell`, `my-status-line`, `ubuntu-debloat` | — | — |
+| `spindev-deploy` | `flyio`, `sprites-dev` | — | sprite-guard, fly-guard (PreToolUse Bash) |
 
 Consumer projects enable whichever plugins they need from
 `.claude/settings.json`. See [`README.md`](./README.md) for the snippet.
@@ -23,9 +23,30 @@ Consumer projects enable whichever plugins they need from
 
 Path: `plugins/spindev-core/`
 Manifest: [`.claude-plugin/plugin.json`](./plugins/spindev-core/.claude-plugin/plugin.json)
-Slash commands: `/end-session`, `/init-project`, `/review-plan`
+Slash commands: `/end-session`, `/init-project`, `/pr-prepass`, `/review-plan`
+Subagents: `pr-prepass`
+Hooks: `gh-workflow` (non-blocking PreToolUse advisory on `gh`/`git push` patterns)
 
 Session / project-lifecycle primitives. Enable on every project.
+
+#### `pr-prepass` (subagent)
+
+Path: `plugins/spindev-core/agents/pr-prepass.md`
+Entry points:
+- `/pr-prepass` (slash command — dispatches the subagent)
+- Auto-dispatched from `/end-session` step 11 when `.github/workflows/pr-review.yml` exists
+
+Mirrors the repo's PR auto-review CI locally before push so the
+operator can fix findings without burning a CI cycle and without
+rebroadcasting findings on a public PR. Reads
+`.github/workflows/pr-review.yml` at runtime to get the authoritative
+list of CI steps; mirrors gitleaks + shellcheck + script-convention
+checks + a Claude PII/secrets/structural pass over the current
+branch's diff vs the default branch. Returns a structured findings
+report in the same shape as the CI summary. Verdict: `safe to push`,
+`fix findings before pushing`, or `not applicable` if no
+`pr-review.yml`. Does not push, does not open the PR — reports only.
+Lifted from `agent.smith` after the pattern proved out.
 
 #### `end-session`
 
@@ -41,6 +62,23 @@ runs local quality gates (tests/typecheck/lint), appends to
 confusion from squash merges, and — when work is clearly complete —
 pushes a feature branch with PR + auto-merge + squash. Worktree-aware.
 Asks before any destructive git op. Self-improves in place.
+
+#### `gh`
+
+Path: `plugins/spindev-core/skills/gh/`
+Entry point: `SKILL.md` (triggered by mentions of GitHub org setup, fine-grained PAT creation, repo creation, branch protection, rulesets, or the "Resource not accessible by personal access token" 403)
+
+Decision-tree playbook for provisioning and managing GitHub orgs,
+fine-grained PATs, and branch protection. Captures the
+often-missed detail that `POST /orgs/{org}/repos` requires
+**Repository → Administration: Read and write**, not Organization
+Administration. Also covers the legacy-branch-protection-vs-rulesets
+choice (rulesets only available on Team plan and above for private
+org repos), the org-level ruleset that protects
+`main`/`staging`/`prod` across every repo with no bypass actors, and
+the 403-triage flow when a PAT hits "Resource not accessible by
+personal access token". Scripts: `bootstrap-pat.sh`,
+`create-repo.sh`, `apply-org-ruleset.sh`, `probe-token.sh`.
 
 #### `init-project`
 
@@ -186,9 +224,36 @@ Targets: any host with Docker CE. Latest LTS / public-GA only.
 
 Path: `plugins/spindev-deploy/`
 Manifest: [`.claude-plugin/plugin.json`](./plugins/spindev-deploy/.claude-plugin/plugin.json)
+Hooks: `sprite-guard`, `fly-guard` (PreToolUse Bash)
 
 Deployment-target reference skills. Enable only on projects that
 actually deploy to the matching platform.
+
+#### `flyio`
+
+Path: `plugins/spindev-deploy/skills/flyio/`
+Entry point: `SKILL.md` (triggered by `flyctl`, `fly.toml`, `fly secrets`, `fly volumes`, `fly deploy`, region selection, cold-start tuning, `min_machines_running`, or volume-migration questions)
+
+Playbook for standing up a small always-on fly.io app with
+volume-backed state, managing secrets, deploying, and day-2 ops.
+Decisions came from the Tod deployment. Covers flyctl install,
+deploy-token auth (preferred over `fly auth login` for automation),
+app + single-attach volume creation, the `fly.toml` shape for an
+always-on long-poller (`min_machines_running=1`,
+`auto_stop_machines="off"`), secrets, ssh-console access, and token
+rotation. Documents real-world gotchas: `VAULT_*` env vars are
+silently stripped, Dockerfile PATH often excludes `/usr/sbin` (kills
+`tailscaled`), app names are lowercase alphanumeric + hyphens only,
+shared-cpu-1x can throttle during large-context assembly, and
+deploy tokens are app-scoped.
+
+Backstop hook: `fly-guard` (`hooks/scripts/fly-guard.sh`) catches
+`fly apps/volumes/machines destroy` without `--yes`,
+`fly secrets set VAULT_*` (silently stripped), and bad
+`fly apps create` names; advisory on `fly deploy` without
+`--remote-only`.
+
+Targets: any host with `flyctl` installed and a fly.io account.
 
 #### `sprites-dev`
 
@@ -205,5 +270,9 @@ URLs, `--file` source:dest uploads, and `--dir`. The skill codifies the
 calls, the `sprite api <path> -- <curl-flags>` ordering, and the
 compress-before-upload workaround for files over ~20 MB that otherwise
 hit HTTP 502.
+
+Backstop hook: `sprite-guard` (`hooks/scripts/sprite-guard.sh`)
+enforces rules 1, 2, 3, and 6 at execution time and blocks the call
+with an explanatory message if a `sprite` invocation violates them.
 
 Targets: any host that drives sprites.dev; especially Windows/Git Bash.

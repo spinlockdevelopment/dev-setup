@@ -193,6 +193,18 @@ app, see [TodSmith `shared/runbooks/sprites-deploy.md`](https://github.com/Smith
 | Set active sprite | `sprite use SPRITE_NAME` |
 | List sprites | `sprite list` |
 
+## Backstop hook
+
+This plugin also ships a `PreToolUse` hook (`sprite-guard.sh`) that
+catches rules 1, 2, 3, and 6 at execution time. If you write a `sprite`
+command that violates one of those rules, the hook blocks the call and
+prints which rule fired. The hook is the safety net; reading the rules
+above is still the primary defense.
+
+When you fix a rule here, also update the matchers in
+`plugins/spindev-deploy/hooks/scripts/sprite-guard.sh` so the hook
+stays in sync.
+
 ## Self-healing
 
 If a rule here turns out to be wrong (upstream fixed something, new failure mode discovered), update this file. Every rule should trace back to an actual failure — when adding a new one, prefer a one-line note about the failure that produced it over a long rationale.

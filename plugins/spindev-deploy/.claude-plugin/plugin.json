@@ -1,7 +1,7 @@
 {
   "name": "spindev-deploy",
-  "version": "0.1.0",
-  "description": "Deployment-target-specific reference skills for spinlockdevelopment. Currently ships sprites-dev (correct-usage rules for the sprite CLI and sprites.dev API on Windows/Git Bash). Enable only on projects that deploy to the matching platform.",
+  "version": "0.2.0",
+  "description": "Deployment-target-specific reference skills for spinlockdevelopment. Ships flyio (fly.io provisioning + always-on app config + day-2 ops, with documented gotchas) and sprites-dev (correct-usage rules for the sprite CLI and sprites.dev API on Windows/Git Bash). Both skills back their rules with PreToolUse Bash hooks (sprite-guard, fly-guard) that catch documented failure modes at execution time. Enable only on projects that deploy to the matching platform.",
   "author": {
     "name": "Chris",
     "url": "https://github.com/spinlockdevelopment"
@@ -12,7 +12,10 @@
     "deployment",
     "sprites-dev",
     "fly-io",
+    "flyctl",
     "windows",
-    "git-bash"
+    "git-bash",
+    "hooks",
+    "guardrails"
   ]
 }
