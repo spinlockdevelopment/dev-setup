@@ -15,7 +15,7 @@ and each plugin's `gemini-extension.json`:
 |---|---|---|---|
 | `spindev-core` | `end-session`, `gh`, `init-project`, `review-plan` | `pr-prepass` | gh-workflow advisory (PreToolUse Bash) |
 | `spindev-devenv` | `create-gh-token`, `hardened-shell`, `my-status-line`, `ubuntu-debloat` | — | — |
-| `spindev-deploy` | `flyio`, `sprites-dev` | — | sprite-guard, fly-guard (PreToolUse Bash) |
+| `spindev-deploy` | `flyio`, `forgejo`, `restic-backup`, `sprites-dev` | — | sprite-guard, fly-guard (PreToolUse Bash) |
 
 Consumer projects enable whichever plugins they need for their target
 agent. See [`README.md`](./README.md) for install details.
@@ -282,3 +282,46 @@ enforces rules 1, 2, 3, and 6 at execution time and blocks the call
 with an explanatory message if a `sprite` invocation violates them.
 
 Targets: any host that drives sprites.dev; especially Windows/Git Bash.
+
+#### `forgejo`
+
+Path: `plugins/spindev-deploy/skills/forgejo/`
+Human overview: [`README.md`](./plugins/spindev-deploy/skills/forgejo/README.md)
+Entry point: `SKILL.md` (triggered by self-hosting git, mirroring GitHub, "second copy" / backup of source, Forgejo, Gitea, GitBucket, codeberg-style hosting, on-prem git, pull-mirror, escaping GitHub-only durability)
+
+Stands up [Forgejo](https://forgejo.org/) (the community soft-fork of
+Gitea) in Docker as a self-hosted git server with two roles: pull-mirror
+for GitHub-canonical repos and direct-push canonical home for on-prem-only
+sensitive repos. Uses Forgejo's first-class pull-mirror with non-force
+fetch semantics — if upstream is force-pushed, the next sync errors
+instead of overwriting. Auto-applies branch protection (`enable_push:
+false`, `enable_force_push: false`) on mirrored repos so nothing
+client-side can rewrite history. SQLite storage; single data dir at
+`./data/forgejo` is what the `restic-backup` skill snapshots.
+
+Pinned to Forgejo LTS (currently v15.0.1, supported through 2027-07-15).
+Targets: any Linux host running Docker.
+
+#### `restic-backup`
+
+Path: `plugins/spindev-deploy/skills/restic-backup/`
+Human overview: [`README.md`](./plugins/spindev-deploy/skills/restic-backup/README.md)
+Entry point: `SKILL.md` (triggered by backups, restic, borg, append-only,
+write-only credentials, NAS share, Cloudflare R2 / S3 / object storage
+backup, healthchecks.io, restore drills, ransomware-resistant backup,
+"second copy of source", or pairing with `forgejo` to back up its data dir)
+
+Wires up an encrypted two-destination restic chain: append-only NAS via
+`rest-server` (primary, fast, free) + Cloudflare R2 with write-only API
+credentials (offsite, immutable). The source box only writes — never
+deletes — so leaked source-box creds cannot destroy existing snapshots.
+Retention is decoupled into `prune-on-nas.sh`, run from the NAS itself
+with elevated creds. Pings healthchecks.io on each successful run so
+silent backup failure surfaces as a missed-ping alert. Ships a
+`restore-drill.sh` that pulls latest snapshots into a scratch dir and
+runs `git fsck` against any bare repos found, since untested backups
+aren't backups.
+
+Pinned to restic 0.18.1 + rest-server v0.14.0. Pairs naturally with the
+`forgejo` skill but works against any directory. Targets: a Linux source
+box, a Linux NAS for `rest-server`, and a Cloudflare R2 bucket.

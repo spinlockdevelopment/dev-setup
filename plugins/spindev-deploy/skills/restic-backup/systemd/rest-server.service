@@ -1,0 +1,34 @@
+[Unit]
+Description=restic REST server (append-only)
+After=network-online.target
+Wants=network-online.target
+Documentation=https://github.com/restic/rest-server
+
+[Service]
+Type=simple
+User=rest-server
+Group=rest-server
+ExecStart=/usr/local/bin/rest-server \
+  --listen :8000 \
+  --path /srv/restic \
+  --htpasswd-file /etc/rest-server/htpasswd \
+  --append-only \
+  --no-verify-upload \
+  --prometheus-no-auth
+Restart=on-failure
+RestartSec=5
+
+# Hardening — rest-server only needs to read the htpasswd and rw the data dir.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ReadWritePaths=/srv/restic
+ReadOnlyPaths=/etc/rest-server
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

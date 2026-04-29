@@ -1,7 +1,7 @@
 {
   "name": "spindev-deploy",
-  "version": "0.2.0",
-  "description": "Deployment-target reference skills for spinlockdevelopment: fly.io provisioning and operations plus sprites.dev usage guardrails.",
+  "version": "0.3.0",
+  "description": "Deployment-target and on-prem infrastructure skills for spinlockdevelopment: fly.io ops, sprites.dev guardrails, self-hosted Forgejo for GitHub mirroring, and a restic backup chain (append-only NAS + write-only Cloudflare R2).",
   "author": {
     "name": "Chris",
     "url": "https://github.com/spinlockdevelopment"
@@ -13,6 +13,13 @@
     "sprites-dev",
     "fly-io",
     "flyctl",
+    "forgejo",
+    "self-hosted-git",
+    "github-mirror",
+    "restic",
+    "backup",
+    "cloudflare-r2",
+    "append-only",
     "windows",
     "git-bash",
     "guardrails"
@@ -20,8 +27,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Spindev Deploy",
-    "shortDescription": "Deployment platform reference skills.",
-    "longDescription": "Deployment-target reference skills for fly.io application provisioning and operations, plus sprites.dev CLI and API usage rules for Windows and Git Bash environments.",
+    "shortDescription": "Deployment + on-prem infrastructure reference skills.",
+    "longDescription": "Deployment-target and on-prem infrastructure skills: fly.io provisioning and ops, sprites.dev guardrails, self-hosted Forgejo (LTS) for GitHub mirroring and on-prem-only repos, and a two-destination restic backup chain with append-only NAS rest-server and write-only Cloudflare R2.",
     "developerName": "Spinlock Development",
     "category": "Deployment",
     "capabilities": [
@@ -31,7 +38,8 @@
     "websiteURL": "https://github.com/spinlockdevelopment/dev-setup",
     "defaultPrompt": [
       "Prepare this app for fly.io deployment.",
-      "Debug this fly.io deployment failure.",
+      "Set up Forgejo to mirror my GitHub repos.",
+      "Wire up restic backups to NAS and Cloudflare R2.",
       "Use sprites.dev correctly from Git Bash."
     ],
     "brandColor": "#7C3AED"

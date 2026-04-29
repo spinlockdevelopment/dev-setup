@@ -1,0 +1,36 @@
+# Forgejo — self-hosted git server (LTS pinned).
+# Pinned 2026-04-29. Bump FORGEJO_VERSION in .env when LTS rolls.
+# https://forgejo.org/releases/
+
+services:
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:${FORGEJO_VERSION:-15.0.1}
+    container_name: forgejo
+    restart: unless-stopped
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - FORGEJO__database__DB_TYPE=sqlite3
+      - FORGEJO__server__DOMAIN=${FORGEJO_DOMAIN:-localhost}
+      - FORGEJO__server__SSH_DOMAIN=${FORGEJO_DOMAIN:-localhost}
+      - FORGEJO__server__SSH_PORT=${SSH_PORT:-2222}
+      - FORGEJO__server__ROOT_URL=http://${FORGEJO_DOMAIN:-localhost}:${WEB_PORT:-3000}/
+      - FORGEJO__service__DISABLE_REGISTRATION=true
+      - FORGEJO__service__REQUIRE_SIGNIN_VIEW=true
+      - FORGEJO__repository__DEFAULT_PRIVATE=private
+      - FORGEJO__mirror__DEFAULT_INTERVAL=6h
+      - FORGEJO__mirror__MIN_INTERVAL=10m
+      - FORGEJO__log__LEVEL=Info
+    volumes:
+      - ./data/forgejo:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+      - "${SSH_PORT:-2222}:22"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s

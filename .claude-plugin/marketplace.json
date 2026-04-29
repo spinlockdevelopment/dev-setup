@@ -26,9 +26,9 @@
     {
       "name": "spindev-deploy",
       "source": "./plugins/spindev-deploy",
-      "description": "Deployment-platform reference skills (flyio, sprites-dev) with PreToolUse hooks (sprite-guard, fly-guard) that catch documented failure modes at execution time.",
+      "description": "Deployment-platform + on-prem infrastructure reference skills: flyio (fly.io ops), sprites-dev (sprite CLI guardrails), forgejo (self-hosted git server in Docker for GitHub mirroring + on-prem-only repos), restic-backup (encrypted append-only NAS + write-only Cloudflare R2 chain). flyio and sprites-dev ship PreToolUse Bash hooks (fly-guard, sprite-guard).",
       "category": "deployment",
-      "keywords": ["deployment", "sprites-dev", "fly-io", "windows", "hooks"]
+      "keywords": ["deployment", "sprites-dev", "fly-io", "windows", "hooks", "forgejo", "self-hosted-git", "github-mirror", "restic", "backup", "cloudflare-r2"]
     }
   ]
 }

@@ -77,8 +77,10 @@ Developer-machine setup + sandboxed agent execution.
 Slash commands: `/create-gh-token`.
 
 ### `spindev-deploy`
-Deployment-target reference skills.
+Deployment-target + on-prem infrastructure reference skills.
 - `flyio` — playbook for fly.io deployments
+- `forgejo` — self-hosted git server (Forgejo LTS in Docker) for GitHub mirroring + on-prem-only repos
+- `restic-backup` — encrypted two-destination backup chain (append-only NAS rest-server + write-only Cloudflare R2) with healthchecks ping and restore drill
 - `sprites-dev` — correct-usage rules for sprites.dev
 
 ## Project Structure

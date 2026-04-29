@@ -1,0 +1,40 @@
+[Unit]
+Description=restic backup chain (NAS append-only + R2 write-only + healthcheck)
+Documentation=https://restic.net/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+# Run as the user who owns ~/.config/restic-backup. Set this in
+# /etc/systemd/system/restic-backup.service.d/override.conf, e.g.:
+#   [Service]
+#   User=chris
+User=root
+
+# Pull all the env files. systemd ignores missing files when prefixed with `-`.
+EnvironmentFile=-/root/.config/restic-backup/nas.env
+EnvironmentFile=-/root/.config/restic-backup/r2.env
+EnvironmentFile=-/root/.config/restic-backup/healthcheck.env
+
+# Override SCRIPT_PATH in the drop-in if you install elsewhere.
+ExecStart=/usr/local/lib/restic-backup/run-backup.sh
+
+# Niceness — don't compete with foreground work.
+Nice=10
+IOSchedulingClass=idle
+
+# Hardening.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ReadOnlyPaths=/
+ReadWritePaths=/var/log
+# The source paths are added by install-systemd-units.sh based on
+# sources.list (via a drop-in).
+
+[Install]
+WantedBy=multi-user.target
