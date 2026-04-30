@@ -1,0 +1,62 @@
+# Deploy the mkdocs site to GitHub Pages.
+# pinned 2026-04-29 — actions/upload-pages-artifact@v3, actions/deploy-pages@v4.
+# Bump these when the actions repos cut new majors and update the dated
+# comment above + the corresponding note in
+# plugins/spindev-docs/skills/technical-writer/SKILL.md.
+
+name: Deploy docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "design-docs/**"
+      - "mkdocs.yml"
+      - ".github/workflows/deploy-mkdocs.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install mkdocs + theme
+        run: |
+          python -m pip install --upgrade pip
+          pip install mkdocs mkdocs-material mkdocs-awesome-pages-plugin
+
+      - name: Build site
+        run: mkdocs build --strict
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
