@@ -1,0 +1,143 @@
+/* Minimalist black/white overrides for mkdocs-material.
+ * Goal: AWS Copilot-style — top tabs, generous whitespace, no accent color,
+ * subtle borders rather than shadows.
+ */
+
+:root {
+  --md-primary-fg-color:        #000000;
+  --md-primary-fg-color--light: #1a1a1a;
+  --md-primary-fg-color--dark:  #000000;
+  --md-accent-fg-color:         #000000;
+  --md-default-fg-color:        #1a1a1a;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color:        #0a0a0a;
+  --md-primary-fg-color--light: #1a1a1a;
+  --md-primary-fg-color--dark:  #000000;
+  --md-accent-fg-color:         #ffffff;
+  --md-default-bg-color:        #0d0d0d;
+}
+
+/* Header: pure black band, no shadow, thin bottom border. */
+.md-header {
+  box-shadow: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-md-color-scheme="slate"] .md-header {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Tabs: thinner, no underline animation, generous spacing. */
+.md-tabs {
+  background-color: var(--md-primary-fg-color);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.md-tabs__link {
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  opacity: 0.78;
+  margin-top: 0;
+  padding: 0.6rem 0;
+}
+
+.md-tabs__link:hover,
+.md-tabs__link--active {
+  opacity: 1;
+}
+
+/* Content: tighter line-length for readability, no max-width chrome. */
+.md-content {
+  max-width: 56rem;
+}
+
+.md-typeset {
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+
+/* Headings: heavier hierarchy, no underline. */
+.md-typeset h1 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.2rem;
+}
+
+.md-typeset h2 {
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  margin-top: 2.4rem;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+  padding-top: 1.6rem;
+}
+
+.md-typeset h3 {
+  font-weight: 600;
+  margin-top: 1.6rem;
+}
+
+/* Code blocks: thin border instead of background tint, monospace tightening. */
+.md-typeset pre > code {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  background-color: var(--md-default-bg-color);
+}
+
+.md-typeset code {
+  font-size: 0.85em;
+  padding: 0.1em 0.35em;
+}
+
+/* Tables: simpler borders, no zebra striping. */
+.md-typeset table:not([class]) {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  font-size: 0.75rem;
+}
+
+.md-typeset table:not([class]) th {
+  background: transparent;
+  border-bottom: 1px solid var(--md-default-fg-color--light);
+  font-weight: 600;
+}
+
+/* Sidebar: lighter type, no bold all-caps section headers. */
+.md-nav__title {
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Footer: muted, single-line. */
+.md-footer-meta {
+  background-color: transparent;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+
+/* Search: cleaner active state. */
+.md-search__form {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.md-search__form:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Light-mode adjustments. */
+[data-md-color-scheme="default"] .md-typeset h2 {
+  border-top-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-md-color-scheme="default"] .md-typeset pre > code {
+  border-color: rgba(0, 0, 0, 0.1);
+  background-color: #fafafa;
+}
+
+[data-md-color-scheme="default"] .md-typeset table:not([class]) {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-md-color-scheme="default"] .md-typeset table:not([class]) th {
+  border-bottom-color: rgba(0, 0, 0, 0.2);
+}
