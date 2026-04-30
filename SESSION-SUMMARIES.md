@@ -558,3 +558,78 @@ Future-you notes:
   blocks with prose; `mkdocs build --strict` doesn't care about HTML
   comments. If the agent ever leaves a placeholder block in a
   published page, that's a write-step bug, not a template bug.
+
+## 2026-04-30 — main (technical-writer dogfood + theme + GH Pages)
+
+- **Dogfooded the technical-writer on this repo.** Adaptive page
+  menu materialized index, architecture, components, development,
+  glossary; correctly skipped data-flow, deployment, operations
+  (no source surface). `docs/` was already populated by the
+  superpowers archive, so the scaffold wrote to `design-docs/`
+  per the non-destructive default. Five pages, ~755 lines, ~37 KB
+  prose. `mkdocs build --strict` exits 0. State recorded.
+- **Two scaffold bugs surfaced and fixed during the test drive.**
+  (1) `seed_if_missing` in `scaffold-mkdocs.sh` copied
+  `index.md.tmpl` raw, leaving `@@REPO_URL@@` unsubstituted; now
+  runs the same `sed` substitution as `mkdocs.yml.tmpl`.
+  (2) `state.sh write` hardcoded `doc_root: docs` even when
+  scaffold wrote to `design-docs/`; now reads `docs_dir:` from the
+  live `mkdocs.yml` first, falls back to prior state.
+- **Theme switched to AWS Copilot CLI-inspired minimalist B&W.**
+  User said the default mkdocs-material indigo + left-rail nav
+  felt "really dated" and pointed at https://aws.github.io/copilot-cli/.
+  New default in `templates/mkdocs.yml.tmpl`:
+  `navigation.tabs` + `tabs.sticky` (top horizontal tab bar),
+  `primary: black` + `accent: black` (light) / `accent: white`
+  (dark), Inter + JetBrains Mono typography. New
+  `templates/overrides.css.tmpl` for thinner borders, generous
+  whitespace, no zebra tables, opacity-driven hover. Saved as a
+  feedback memory (`feedback_minimalist_doc_aesthetic.md`) so
+  future doc-site work defaults to this aesthetic.
+- **Demo-validated the delta-aware path.** After committing
+  spindev-docs (`8a020c6`) + dogfood (`fec0576`), the rerun
+  reported `mode: incremental` with a 43-file delta. Acting as the
+  writer: existing pages already accurately documented spindev-docs
+  + the theme (written with that knowledge in scope), so the
+  incremental decision was "no content edits — refresh state
+  only". State updated to point at `fec0576`; subsequent run
+  reports `no-op`. Demonstrates the LLM-decides-not-a-threshold
+  behavior end-to-end.
+- **GH Pages workflow scaffolded and pushed.** `/docs-deploy` (via
+  `scripts/deploy-gh-pages.sh`) wrote
+  `.github/workflows/deploy-mkdocs.yml`. First push attempt was
+  rejected because the fine-grained PAT lacked **Workflows: Read
+  and write**; the user fixed the PAT scope on github.com and
+  re-pushed manually from a terminal. Workflow now on `main` —
+  next CI run should publish to `https://spinlockdevelopment.github.io/dev-setup/`
+  once Pages is enabled in repo settings.
+- **Three commits shipped to `main`** (bringup mode):
+  `8a020c6 feat: add spindev-docs plugin (technical-writer + /docs-deploy)`,
+  `fec0576 docs: dogfood technical-writer — generate design-docs/ + mkdocs.yml`,
+  `7356db0 ci: add mkdocs deploy workflow for GitHub Pages`.
+
+Future-you notes:
+
+- **Enable Pages in repo settings** before checking the deploy URL:
+  Settings → Pages → Build and deployment → Source → **GitHub
+  Actions**. The workflow will fail-loudly with an obvious error if
+  Pages isn't enabled. One-time setup per repo.
+- **PAT workflow scope.** Updated `reference_github_pat.md` with the
+  workflow-scope gotcha. Any future repo where Claude needs to push
+  `.github/workflows/*.yml` will hit the same wall — the fine-grained
+  PAT needs Workflows: Read and write set on github.com (the token
+  string itself doesn't change, so `.env` keeps working).
+- **Claude can't `mkdocs serve` indefinitely.** For local preview the
+  user runs `mkdocs serve` themselves. Skill's `USAGE.md` documents
+  this.
+- **Bugfix candidates if used heavily.** scaffold-mkdocs's `sed`
+  substitution doesn't escape `|` in user-provided values like
+  `SITE_NAME` or `REPO_URL`; if a repo URL ever contains a literal
+  `|` (very rare), the sed line would mis-substitute. Switch to
+  envsubst or a python one-liner if it bites.
+- **Test on a fresh project.** User flagged this as the next move:
+  "ill test this out on another project". Watch for: (1)
+  preflight-pipx flow on a box that doesn't have pipx yet; (2)
+  default `docs/` path (most repos won't have a pre-existing
+  `docs/`); (3) the theme on a non-self-referential repo to see if
+  the aesthetic holds up.

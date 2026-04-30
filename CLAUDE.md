@@ -82,7 +82,8 @@ Rules:
 1. Pick the right plugin. `spindev-core` for lifecycle/session
    primitives used in >80% of projects. `spindev-devenv` for
    developer-machine setup and sandboxing. `spindev-deploy` for
-   deployment-target-specific references.
+   deployment-target-specific references. `spindev-docs` for
+   documentation generation tooling.
 2. Create `plugins/<plugin>/skills/<name>/SKILL.md` with YAML
    frontmatter (`name`, `description`) and a thin body.
 3. Create `plugins/<plugin>/skills/<name>/README.md` — plain-English
