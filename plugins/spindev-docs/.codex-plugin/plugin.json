@@ -1,0 +1,39 @@
+{
+  "name": "spindev-docs",
+  "version": "0.1.0",
+  "description": "Documentation skills for spinlockdevelopment Codex CLI: technical-writer scans a repo and emits a delta-aware mkdocs-material design doc ready for GitHub Pages or any static host.",
+  "author": {
+    "name": "Chris",
+    "url": "https://github.com/spinlockdevelopment"
+  },
+  "homepage": "https://github.com/spinlockdevelopment/dev-setup#spindev-docs",
+  "repository": "https://github.com/spinlockdevelopment/dev-setup",
+  "keywords": [
+    "documentation",
+    "mkdocs",
+    "mkdocs-material",
+    "design-doc",
+    "github-pages",
+    "technical-writer",
+    "incremental"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Spindev Docs",
+    "shortDescription": "Repo-aware design doc generator with mkdocs output.",
+    "longDescription": "Documentation skills: the technical-writer scans an entire repository, produces a coherent design doc, and emits mkdocs-formatted Markdown with the mkdocs-material theme — ready for GitHub Pages but portable to any static host. Delta-aware: reruns consult a per-repo state file and either incrementally update only the pages whose source files changed, or full-regen if the delta is too large. Ships an opt-in /docs-deploy command that scaffolds a GitHub Pages workflow.",
+    "developerName": "Spinlock Development",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/spinlockdevelopment/dev-setup",
+    "defaultPrompt": [
+      "Document this repo as a mkdocs site.",
+      "Regenerate the design doc for this project.",
+      "Scaffold a GitHub Pages workflow for these docs."
+    ],
+    "brandColor": "#0EA5E9"
+  }
+}

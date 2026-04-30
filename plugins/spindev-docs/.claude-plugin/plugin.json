@@ -1,0 +1,23 @@
+{
+  "name": "spindev-docs",
+  "version": "0.1.0",
+  "description": "Documentation skills for spinlockdevelopment. Ships the technical-writer subagent + skill: scans a repo, produces a coherent design doc, emits mkdocs-formatted Markdown with the mkdocs-material theme, and is delta-aware (consults a per-repo state file so reruns either incrementally update changed pages or fall back to full regen). Includes a /docs-deploy slash command that scaffolds an opt-in GitHub Pages workflow. Output is plain mkdocs — portable to Cloudflare Pages, Netlify, or any static host that consumes a `site/` directory.",
+  "author": {
+    "name": "Chris",
+    "url": "https://github.com/spinlockdevelopment"
+  },
+  "homepage": "https://github.com/spinlockdevelopment/dev-setup#spindev-docs",
+  "repository": "https://github.com/spinlockdevelopment/dev-setup",
+  "keywords": [
+    "documentation",
+    "mkdocs",
+    "mkdocs-material",
+    "design-doc",
+    "github-pages",
+    "static-site",
+    "technical-writer",
+    "subagent",
+    "incremental",
+    "delta-aware"
+  ]
+}

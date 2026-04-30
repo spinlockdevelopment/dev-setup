@@ -13,12 +13,13 @@ Add it from a consuming project or from this checkout:
 codex plugin marketplace add /path/to/dev-setup
 ```
 
-The marketplace publishes three local plugins:
+The marketplace publishes four local plugins:
 
 ```text
 ./plugins/spindev-core
 ./plugins/spindev-devenv
 ./plugins/spindev-deploy
+./plugins/spindev-docs
 ```
 
 Each plugin has a Codex manifest at
@@ -32,6 +33,7 @@ Install the plugins as Gemini CLI extensions directly from the local checkout:
 gemini extensions install ./plugins/spindev-core
 gemini extensions install ./plugins/spindev-devenv
 gemini extensions install ./plugins/spindev-deploy
+gemini extensions install ./plugins/spindev-docs
 ```
 
 ### Claude Code (Marketplace)
@@ -50,7 +52,8 @@ Add the marketplace and turn on the plugins you want in your project's `.claude/
   "enabledPlugins": {
     "spindev-core@spinlockdevelopment": true,
     "spindev-devenv@spinlockdevelopment": true,
-    "spindev-deploy@spinlockdevelopment": true
+    "spindev-deploy@spinlockdevelopment": true,
+    "spindev-docs@spinlockdevelopment": true
   }
 }
 ```
@@ -82,6 +85,12 @@ Deployment-target + on-prem infrastructure reference skills.
 - `forgejo` — self-hosted git server (Forgejo LTS in Docker) for GitHub mirroring + on-prem-only repos
 - `restic-backup` — encrypted two-destination backup chain (append-only NAS rest-server + write-only Cloudflare R2) with healthchecks ping and restore drill
 - `sprites-dev` — correct-usage rules for sprites.dev
+
+### `spindev-docs`
+Documentation skills.
+- `technical-writer` (skill + subagent) — repo-aware design doc generator. Scans the repo, emits a delta-aware mkdocs-material site (incremental updates on rerun, full regen on rebase / force-push), validates with `mkdocs build --strict`, and runs a secrets/PII pass before each page write. Output is plain mkdocs — portable to GitHub Pages, Cloudflare Pages, Netlify, or any static host.
+
+Slash commands: `/technical-writer`, `/docs-deploy` (scaffolds the GH Pages workflow on demand).
 
 ## Project Structure
 Skills and subagents are shared between Codex, Claude, and Gemini. Each

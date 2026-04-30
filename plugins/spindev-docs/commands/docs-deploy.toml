@@ -1,0 +1,20 @@
+description = "Scaffold a GitHub Pages deployment workflow for the mkdocs site (modern actions/upload-pages-artifact + actions/deploy-pages flow; no gh-pages branch)"
+prompt = """
+Invoke the `technical-writer` skill's `deploy-gh-pages.sh` script against the current repo:
+
+```bash
+bash plugins/spindev-docs/skills/technical-writer/scripts/deploy-gh-pages.sh
+```
+
+(The skill resolves to `${extensionPath}/skills/technical-writer/scripts/deploy-gh-pages.sh` once installed.)
+
+The script drops `.github/workflows/deploy-mkdocs.yml` into the repo (idempotent — refuses to overwrite an existing file) and prints the manual next steps: commit + push the workflow, then enable Pages in repo settings under Source → GitHub Actions.
+
+The workflow triggers on push to `main` when `docs/`, `design-docs/`, `mkdocs.yml`, or itself changes. Build with `mkdocs build`; deploy via `actions/upload-pages-artifact@v3` + `actions/deploy-pages@v4`.
+
+For non-Pages targets (Cloudflare Pages, Netlify, plain artifact), `mkdocs build` produces `site/` — point the host at that directory; no workflow scaffold needed.
+
+Do not push or commit — the operator decides.
+
+Arguments: {{args}}
+"""

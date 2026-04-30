@@ -29,6 +29,13 @@
       "description": "Deployment-platform + on-prem infrastructure reference skills: flyio (fly.io ops), sprites-dev (sprite CLI guardrails), forgejo (self-hosted git server in Docker for GitHub mirroring + on-prem-only repos), restic-backup (encrypted append-only NAS + write-only Cloudflare R2 chain). flyio and sprites-dev ship PreToolUse Bash hooks (fly-guard, sprite-guard).",
       "category": "deployment",
       "keywords": ["deployment", "sprites-dev", "fly-io", "windows", "hooks", "forgejo", "self-hosted-git", "github-mirror", "restic", "backup", "cloudflare-r2"]
+    },
+    {
+      "name": "spindev-docs",
+      "source": "./plugins/spindev-docs",
+      "description": "Repo-aware design doc generator: technical-writer subagent + skill scans the repo, emits a delta-aware mkdocs-material site (incremental updates on rerun, full regen on rebase / force-push), validates with mkdocs build --strict, and scaffolds an opt-in GitHub Pages workflow via /docs-deploy. Output is plain mkdocs — portable to Cloudflare Pages, Netlify, or any static host.",
+      "category": "documentation",
+      "keywords": ["documentation", "mkdocs", "mkdocs-material", "design-doc", "github-pages", "static-site", "technical-writer", "subagent", "incremental", "delta-aware"]
     }
   ]
 }

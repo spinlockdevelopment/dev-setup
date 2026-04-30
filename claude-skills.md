@@ -16,6 +16,7 @@ and each plugin's `gemini-extension.json`:
 | `spindev-core` | `end-session`, `gh`, `init-project`, `review-plan` | `pr-prepass` | gh-workflow advisory (PreToolUse Bash) |
 | `spindev-devenv` | `create-gh-token`, `hardened-shell`, `my-status-line`, `ubuntu-debloat` | — | — |
 | `spindev-deploy` | `flyio`, `forgejo`, `restic-backup`, `sprites-dev` | — | sprite-guard, fly-guard (PreToolUse Bash) |
+| `spindev-docs` | `technical-writer` | `technical-writer` | — |
 
 Consumer projects enable whichever plugins they need for their target
 agent. See [`README.md`](./README.md) for install details.
@@ -325,3 +326,56 @@ aren't backups.
 Pinned to restic 0.18.1 + rest-server v0.14.0. Pairs naturally with the
 `forgejo` skill but works against any directory. Targets: a Linux source
 box, a Linux NAS for `rest-server`, and a Cloudflare R2 bucket.
+
+### `spindev-docs`
+
+Path: `plugins/spindev-docs/`
+Manifest: [`.claude-plugin/plugin.json`](./plugins/spindev-docs/.claude-plugin/plugin.json)
+Codex manifest: [`.codex-plugin/plugin.json`](./plugins/spindev-docs/.codex-plugin/plugin.json)
+Slash commands: `/technical-writer`, `/docs-deploy`
+Subagents: `technical-writer`
+
+Documentation skills. Enable on projects that want a maintained design
+doc (mkdocs-material site, GitHub Pages-ready).
+
+#### `technical-writer` (skill + subagent)
+
+Path: `plugins/spindev-docs/skills/technical-writer/`
+Subagent: `plugins/spindev-docs/agents/technical-writer.md`
+Human overview: [`README.md`](./plugins/spindev-docs/skills/technical-writer/README.md)
+Deep user guide: [`USAGE.md`](./plugins/spindev-docs/skills/technical-writer/USAGE.md)
+Entry points:
+- `/technical-writer` (Claude / Gemini slash command — dispatches the subagent on Claude, runs the skill body on Gemini)
+- `scripts/run-all.sh` — orchestrator (also `--verify`, `--full-regen`)
+- `scripts/deploy-gh-pages.sh` — scaffold GH Pages workflow (also via `/docs-deploy`)
+
+Scans an entire repository and publishes a coherent mkdocs-formatted
+design doc (mkdocs-material theme, GitHub Pages-ready). **Delta-aware
+on rerun**: consults a per-repo state file at
+`~/.local/state/technical-writer/repos/<key>.json` and either
+incrementally updates only the pages whose source files changed, or
+full-regenerates if the delta is too disruptive (rebase / force-push /
+branch swap detected via `git merge-base --is-ancestor`, or breadth/depth
+too large for clean merge — the LLM, not a hardcoded threshold,
+decides). The page menu is adaptive: `architecture.md`,
+`components.md`, `data-flow.md`, `deployment.md`, `operations.md`,
+`development.md`, `glossary.md` are materialized only when the scan
+finds the corresponding source surface; empty stubs are dropped from
+`nav:` too. Pre-publish secrets/PII pass on each generated page mirrors
+the Claude pass in `pr-prepass` — blocks on findings rather than
+silently redacting. Output is plain mkdocs — portable to Cloudflare
+Pages, Netlify, or any static host that consumes `site/`. Refuses to
+overwrite an existing non-mkdocs `docs/` (writes to `design-docs/`
+instead and configures `docs_dir: design-docs` in `mkdocs.yml`).
+mkdocs + mkdocs-material install via pipx on first run; preflight
+prints the `! sudo apt install -y pipx` line for the operator if
+pipx itself is missing.
+
+`/docs-deploy` is a separate command that scaffolds
+`.github/workflows/deploy-mkdocs.yml` (modern split:
+`actions/upload-pages-artifact@v3` + `actions/deploy-pages@v4`; no
+`gh-pages` branch). Generation and publication are decoupled —
+write/refresh on every meaningful commit, deploy when ready.
+
+Targets: any host with `git` + `pipx` (or `mkdocs` already on PATH).
+Latest LTS / public-GA only.

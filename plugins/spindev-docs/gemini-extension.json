@@ -1,0 +1,6 @@
+{
+  "name": "spindev-docs",
+  "version": "0.1.0",
+  "description": "Repo-aware design doc generator (mkdocs-material, GH Pages-ready) for spindev.",
+  "contextFileName": "GEMINI.md"
+}

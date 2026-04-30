@@ -488,3 +488,73 @@ Future-you notes:
 - **No `pr-review.yml` in this repo.** The new auto-dispatch in
   `/end-session` is a no-op here. If we ever add a PR-review CI to
   dev-setup itself, `pr-prepass` will pick it up automatically.
+
+## 2026-04-29 — main (technical-writer / spindev-docs plugin)
+
+- Added a fourth plugin `spindev-docs` shipping the `technical-writer`
+  skill + Claude subagent + `/technical-writer` and `/docs-deploy`
+  slash commands. Generates a coherent, mkdocs-material-themed design
+  doc for any repo and is delta-aware on rerun: per-repo state at
+  `~/.local/state/technical-writer/repos/<sha256-of-remote.origin.url>.json`
+  carries `last_commit`, and `state.sh mode` returns `first-run`,
+  `no-op`, `incremental`, or `rebase-fallback` based on
+  `git merge-base --is-ancestor` against HEAD. The model (not a
+  hardcoded threshold) decides when an `incremental` diff is too
+  large and full-regen is warranted; `--full-regen` overrides.
+- Decisions made via planning AskUserQuestion: new plugin (over
+  folding into `spindev-core`) — heavyweight Python tooling +
+  templates + GH Actions workflow justify the split; existing
+  non-mkdocs `docs/` folders are not overwritten — skeleton goes in
+  `design-docs/` with `docs_dir: design-docs` in `mkdocs.yml`;
+  pre-publish secrets/PII pass on each generated page (mirrors
+  `pr-prepass` step 4) blocks writes on findings rather than
+  silently redacting.
+- Cross-platform: Claude loads SKILL.md + the subagent + the `.md`
+  slash command; Codex loads SKILL.md only; Gemini loads SKILL.md +
+  the `.toml` slash command. `scripts/run-all.sh` is the universal
+  entry point — emits a JSON envelope on stdout (mode, scan, prior
+  state, delta files) for the agent to consume. Subagent is a
+  Claude-side context-isolation bonus, not a prerequisite.
+- Tooling install via pipx — `preflight.sh` installs
+  `mkdocs + mkdocs-material + mkdocs-awesome-pages-plugin` if missing
+  and pipx is available; if pipx is missing, prints
+  `! sudo apt install -y pipx && pipx ensurepath` for the operator
+  to run with the bang-prefix and bails (per
+  `feedback_sudo_pattern.md`).
+- GH Pages workflow uses the modern split:
+  `actions/upload-pages-artifact@v3` + `actions/deploy-pages@v4`
+  (no `gh-pages` branch). Trigger on push to `main` with paths
+  filter on `docs/`, `design-docs/`, `mkdocs.yml`, and the workflow
+  itself. Pinned 2026-04-29.
+- Output is plain mkdocs `site/` — portable to Cloudflare Pages,
+  Netlify, S3+CloudFront, or any static host. The `/docs-deploy`
+  command is decoupled from `/technical-writer` so generation runs
+  on every meaningful commit while publication is a separate
+  decision.
+- Catalog updates: both `marketplace.json` files,
+  `claude-skills.md`, root `README.md`. No hooks shipped — push
+  back from the planning phase, no validation barrier needed for a
+  doc-generation skill.
+
+Future-you notes:
+
+- **Cross-harness manifest sanity.** The `gemini-extension.json` and
+  Codex `interface` block schemas were mirrored from existing
+  plugins, not validated against authoritative external schemas. Run
+  `claude plugin validate .` after first install to catch field-name
+  drift; if Codex/Gemini ship validators, run them too.
+- **Self-test on this repo is the smoke test.** No `docs/` exists in
+  dev-setup yet, so `/technical-writer` here will write to `docs/`
+  on first run. Confirm `mkdocs build --strict` exits 0, then make a
+  trivial commit and rerun to validate the incremental path.
+- **Secrets pass tuning.** First invocations may flag false positives
+  on plausible-looking placeholders in `.env.example`-style content.
+  The pass is intentionally conservative — prefer "block + report"
+  over "redact silently". Tune the agent prompt in
+  `agents/technical-writer.md` if false-positive rate is too high in
+  practice.
+- **Templates use `<!-- AGENT: -->` blocks**, not Jinja or
+  string-interpolation placeholders. The agent overwrites those
+  blocks with prose; `mkdocs build --strict` doesn't care about HTML
+  comments. If the agent ever leaves a placeholder block in a
+  published page, that's a write-step bug, not a template bug.

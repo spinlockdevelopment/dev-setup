@@ -1,0 +1,73 @@
+site_name: @@SITE_NAME@@
+site_description: Design documentation for @@SITE_NAME@@.
+docs_dir: @@DOCS_DIR@@
+repo_url: @@REPO_URL@@
+edit_uri: edit/main/@@DOCS_DIR@@/
+
+# Theme: minimalist black/white, tabs on top.
+# Inspired by https://aws.github.io/copilot-cli/ — top-level entries become
+# horizontal tabs in the header; no sidebar grouping by default; black/white
+# palette with no accent color.
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - navigation.tracking
+    - navigation.instant
+    - navigation.instant.progress
+    - toc.follow
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.action.edit
+  font:
+    text: Inter
+    code: JetBrains Mono
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: black
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: white
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+
+extra_css:
+  - assets/overrides.css
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+      permalink_title: Anchor link
+
+nav:
+  - Overview: index.md

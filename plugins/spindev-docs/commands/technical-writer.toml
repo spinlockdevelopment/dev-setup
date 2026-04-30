@@ -1,0 +1,28 @@
+description = "Scan the current repo and publish (or refresh) a mkdocs-formatted design doc — delta-aware on rerun, mkdocs-material theme, GitHub Pages-ready"
+prompt = """
+Invoke the `technical-writer` skill against the current working tree.
+
+Run the orchestrator and consume its JSON envelope on stdout:
+
+```bash
+bash plugins/spindev-docs/skills/technical-writer/scripts/run-all.sh
+```
+
+(The skill resolves to `${extensionPath}/skills/technical-writer/scripts/run-all.sh` once the extension is installed.)
+
+The envelope contains `mode` (`first-run` | `no-op` | `incremental` | `rebase-fallback` | `full`), `delta_files`, `scan` (a JSON inventory of the repo), `prior_state`, and `docs_dir`.
+
+Then:
+
+1. Pick the page menu adaptively from what the scan found — only materialize sections whose source surface is non-empty (drop empty stubs from `nav:` too).
+2. Write or update each page (templates with `<!-- AGENT: -->` placeholders live next to the scripts under `templates/`).
+3. Before writing each page, do a careful read for accidental secrets / PII / internal URLs in the prose. Block the write on findings; report instead of silently redacting.
+4. Validate with `mkdocs build --strict`, record state with `scripts/state.sh write <HEAD_SHA> <page1> <page2> ...`.
+5. Report a structured run summary: prior commit → HEAD, mode, pages touched, secrets-pass result, build result, next-step hint.
+
+If the consumer repo already has a non-mkdocs `docs/`, the scaffold writes to `design-docs/` instead. To force a full regen pass `--full-regen` to `run-all.sh`. To run read-only pass `--verify`.
+
+Do not push, commit, or open a PR — the operator decides.
+
+Arguments: {{args}}
+"""

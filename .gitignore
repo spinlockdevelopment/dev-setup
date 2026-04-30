@@ -9,3 +9,6 @@ Thumbs.db
 *.swp
 .vscode/
 .idea/
+
+# mkdocs build output
+site/
